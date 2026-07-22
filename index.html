@@ -3,39 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GRAVAFILT S.A. | Análisis de Costos VNR por Granulometría</title>
+    <title>GRAVAFILT S.A. | Centro de Control VNR & Costos</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Chart.js para Gráficos Interactivos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Estilos optimizados para exportación en impresión/PDF */
+        @media print {
+            body { background-color: white !important; color: black !important; padding: 0 !important; }
+            .no-print { display: none !important; }
+            .print-card { background-color: white !important; border: 1px solid #cbd5e1 !important; color: black !important; box-shadow: none !important; }
+            .print-text { color: #0f172a !important; }
+            table { font-size: 10pt !important; border-collapse: collapse !important; }
+            th, td { border: 1px solid #cbd5e1 !important; padding: 6px !important; color: black !important; }
+            th { background-color: #f1f5f9 !important; }
+        }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-200 min-h-screen p-4 md:p-8">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 font-sans">
 
     <div class="max-w-7xl mx-auto space-y-6">
-        <!-- Encabezado -->
-        <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        
+        <!-- Header Principal -->
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print-card">
             <div>
-                <h1 class="text-2xl font-bold text-white">GRAVAFILT S.A.</h1>
-                <p class="text-slate-400 text-sm">Matriz de Valor Neto de Realización (VNR) y Costo Diferenciado por Malla</p>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-3xl font-extrabold text-white tracking-tight print-text">GRAVAFILT S.A.</h1>
+                    <span class="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-500/30 font-semibold no-print">VNR Ex-Works</span>
+                </div>
+                <p class="text-slate-400 text-sm mt-1 print-text">Monitoreo de Costos Conjuntos Diferenciados por Granulometría de Arena Industrial</p>
             </div>
-            <span class="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full font-semibold border border-blue-500/30">Análisis Ex Works</span>
+            
+            <div class="flex items-center gap-3 no-print">
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2.5 rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center gap-2 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4h10z"></path></svg>
+                    Exportar PDF / Imprimir
+                </button>
+            </div>
         </div>
 
-        <!-- Tabla VNR Completa -->
-        <div class="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700 space-y-4">
-            <h2 class="text-lg font-semibold text-white">Desglose Operativo y Financiero</h2>
-            
-            <div id="tabla-contenido" class="overflow-x-auto">
-                <p class="text-slate-400 text-sm">Cargando registros VNR desde la base de datos...</p>
+        <!-- Tarjetas de KPIs (Indicadores Clave) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
+            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
+                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Ingreso Teórico Total</p>
+                <h3 id="kpi-ingreso" class="text-2xl font-bold text-emerald-400 mt-1">$ 0</h3>
+                <p class="text-xs text-slate-500 mt-1">Por hora de operación</p>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
+                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Productividad Global</p>
+                <h3 id="kpi-prod" class="text-2xl font-bold text-sky-400 mt-1">0 tn/h</h3>
+                <p class="text-xs text-slate-500 mt-1">Capacidad procesada std</p>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
+                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Conjunto Total</p>
+                <h3 id="kpi-costo" class="text-2xl font-bold text-amber-400 mt-1">$ 0</h3>
+                <p class="text-xs text-slate-500 mt-1">Prorrateo horario de planta</p>
+            </div>
+            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
+                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Unit. Promedio</p>
+                <h3 id="kpi-promedio" class="text-2xl font-bold text-indigo-400 mt-1">$ 0 / tn</h3>
+                <p class="text-xs text-slate-500 mt-1">Costo medio ponderado</p>
             </div>
         </div>
+
+        <!-- Gráficos Interactivos -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
+            <!-- Gráfico de Barras: Precio Vta vs Costo Real -->
+            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                <h2 class="text-base font-semibold text-white mb-4">Comparativa: Precio de Venta vs. Costo Unitario Real ($/tn)</h2>
+                <div class="h-64">
+                    <canvas id="chartPreciosCostos"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico de Dona: % Participación en Ingresos -->
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                <h2 class="text-base font-semibold text-white mb-4">Participación por Malla (% Ingreso)</h2>
+                <div class="h-64 flex justify-center items-center">
+                    <canvas id="chartParticipacion"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Matriz VNR Completa -->
+        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4 print-card">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-white print-text">Matriz Operativa de Valor Neto de Realización</h2>
+                <span class="text-xs text-slate-500 print-text">Valores actualizados vía Supabase</span>
+            </div>
+            
+            <div id="tabla-contenido" class="overflow-x-auto">
+                <p class="text-slate-400 text-sm py-4">Cargando matriz VNR desde la base de datos...</p>
+            </div>
+        </div>
+
     </div>
 
     <script>
+        // Configuración de Supabase
         const supabaseUrl = 'https://yfakjwuyjbshgtdfwzmj.supabase.co';
+        // REEMPLAZA CON TU LLAVE ANON CON COMILLAS:
         const supabaseKey = 'sb_publishable_qszfm0q2p-Ku11dyhOyT_g_mHdOmorF';
-        
+
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function cargarVNR() {
+        let chartPrecios = null;
+        let chartDona = null;
+
+        async function cargarDashboardVNR() {
             const contenedor = document.getElementById('tabla-contenido');
             const { data, error } = await supabaseClient.from('costos').select('*').order('id', { ascending: true });
 
@@ -45,14 +124,24 @@
             }
 
             if (!data || data.length === 0) {
-                contenedor.innerHTML = `<p class="text-amber-400 text-sm">La tabla está lista pero no tiene datos guardados.</p>`;
+                contenedor.innerHTML = `<p class="text-amber-400 text-sm">No hay registros guardados en la tabla "costos".</p>`;
                 return;
             }
 
+            // Variables acumuladoras para KPIs
+            let totalIngreso = 0;
+            let totalProd = 0;
+            let totalCostoConjunto = 0;
+
+            let labels = [];
+            let preciosVta = [];
+            let costosReales = [];
+            let participaciones = [];
+
             let html = `
-            <table class="w-full text-left border-collapse min-w-[900px]">
+            <table class="w-full text-left border-collapse min-w-[950px]">
                 <thead>
-                    <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider bg-slate-800/80">
+                    <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase tracking-wider bg-slate-950/50">
                         <th class="p-3">Producto / Granulometría</th>
                         <th class="p-3 text-right">% Rend. Físico</th>
                         <th class="p-3 text-right">Prod. (tn/h)</th>
@@ -63,27 +152,110 @@
                         <th class="p-3 text-right text-emerald-400">Costo Real $/tn</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-700/50 text-sm">`;
+                <tbody class="divide-y divide-slate-800 text-sm">`;
 
             data.forEach(row => {
+                const prod = Number(row.productividad_tnh) || 0;
+                const ingreso = Number(row.ingreso_teorico_hs) || 0;
+                const costoConj = Number(row.costo_conjunto_asignado_hs) || 0;
+                const precio = Number(row.precio_venta_tn) || 0;
+                const costoReal = Number(row.costo_unitario_real_tn) || 0;
+                const part = Number(row.participacion_ingreso_pct) || 0;
+
+                totalProd += prod;
+                totalIngreso += ingreso;
+                totalCostoConjunto += costoConj;
+
+                labels.push(row.granulometria || 'Malla');
+                preciosVta.push(precio);
+                costosReales.push(costoReal);
+                participaciones.push(part);
+
                 html += `
-                <tr class="hover:bg-slate-700/30 transition">
-                    <td class="p-3 font-semibold text-white">${row.granulometria || '-'}</td>
-                    <td class="p-3 text-right text-slate-300">${row.rendimiento_pct ? row.rendimiento_pct + '%' : '-'}</td>
-                    <td class="p-3 text-right text-slate-300">${row.productividad_tnh ? Number(row.productividad_tnh).toLocaleString() : '-'}</td>
-                    <td class="p-3 text-right text-slate-300">${row.precio_venta_tn ? '$ ' + Number(row.precio_venta_tn).toLocaleString() : '-'}</td>
-                    <td class="p-3 text-right text-slate-300">${row.ingreso_teorico_hs ? '$ ' + Number(row.ingreso_teorico_hs).toLocaleString() : '-'}</td>
-                    <td class="p-3 text-right text-slate-300">${row.participacion_ingreso_pct ? row.participacion_ingreso_pct + '%' : '-'}</td>
-                    <td class="p-3 text-right text-slate-300">${row.costo_conjunto_asignado_hs ? '$ ' + Number(row.costo_conjunto_asignado_hs).toLocaleString() : '-'}</td>
-                    <td class="p-3 text-right font-bold text-emerald-400">${row.costo_unitario_real_tn ? '$ ' + Number(row.costo_unitario_real_tn).toLocaleString() : '-'}</td>
+                <tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-3 font-semibold text-white print-text">${row.granulometria || '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${row.rendimiento_pct != null ? row.rendimiento_pct + '%' : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${prod ? prod.toLocaleString() : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${precio ? '$ ' + precio.toLocaleString() : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${ingreso ? '$ ' + ingreso.toLocaleString() : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${part != null ? part + '%' : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${costoConj ? '$ ' + costoConj.toLocaleString() : '-'}</td>
+                    <td class="p-3 text-right font-bold text-emerald-400 print-text">${costoReal ? '$ ' + costoReal.toLocaleString() : '-'}</td>
                 </tr>`;
             });
 
             html += `</tbody></table>`;
             contenedor.innerHTML = html;
+
+            // Actualizar KPIs
+            document.getElementById('kpi-ingreso').innerText = '$ ' + totalIngreso.toLocaleString();
+            document.getElementById('kpi-prod').innerText = totalProd.toLocaleString() + ' tn/h';
+            document.getElementById('kpi-costo').innerText = '$ ' + totalCostoConjunto.toLocaleString();
+            
+            const costoProm = totalProd > 0 ? (totalCostoConjunto / totalProd) : 0;
+            document.getElementById('kpi-promedio').innerText = '$ ' + costoProm.toLocaleString(undefined, {maximumFractionDigits: 2}) + ' / tn';
+
+            // Renderizar Gráficos
+            renderizarGraficos(labels, preciosVta, costosReales, participaciones);
         }
 
-        cargarVNR();
+        function renderizarGraficos(labels, preciosVta, costosReales, participaciones) {
+            // Destruir instancias previas si existen
+            if (chartPrecios) chartPrecios.destroy();
+            if (chartDona) chartDona.destroy();
+
+            // 1. Gráfico de Barras (Precio vs Costo)
+            const ctxPrecios = document.getElementById('chartPreciosCostos').getContext('2d');
+            chartPrecios = new Chart(ctxPrecios, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Precio Venta ($/tn)',
+                            data: preciosVta,
+                            backgroundColor: '#3b82f6',
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Costo Unitario Real ($/tn)',
+                            data: costosReales,
+                            backgroundColor: '#10b981',
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8' } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+                    }
+                }
+            });
+
+            // 2. Gráfico de Dona (Participación)
+            const ctxDona = document.getElementById('chartParticipacion').getContext('2d');
+            chartDona = new Chart(ctxDona, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: participaciones,
+                        backgroundColor: ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 11 } } } }
+                }
+            });
+        }
+
+        cargarDashboardVNR();
     </script>
 </body>
 </html>
