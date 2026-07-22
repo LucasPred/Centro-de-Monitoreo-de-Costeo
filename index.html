@@ -12,7 +12,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        /* Estilos optimizados para exportación en impresión/PDF */
         @media print {
             body { background-color: white !important; color: black !important; padding: 0 !important; }
             .no-print { display: none !important; }
@@ -50,31 +49,31 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Ingreso Teórico Total</p>
-                <h3 id="kpi-ingreso" class="text-2xl font-bold text-emerald-400 mt-1">$ 0</h3>
+                <h3 id="kpi-ingreso" class="text-2xl font-bold text-emerald-400 mt-1">$ 0,00</h3>
                 <p class="text-xs text-slate-500 mt-1">Por hora de operación</p>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Productividad Global</p>
-                <h3 id="kpi-prod" class="text-2xl font-bold text-sky-400 mt-1">0 tn/h</h3>
-                <p class="text-xs text-slate-500 mt-1">Capacidad procesada std</p>
+                <h3 id="kpi-prod" class="text-2xl font-bold text-sky-400 mt-1">19,20 tn/h</h3>
+                <p class="text-xs text-slate-500 mt-1">Base estándar @ 4% Humedad</p>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Conjunto Total</p>
-                <h3 id="kpi-costo" class="text-2xl font-bold text-amber-400 mt-1">$ 0</h3>
+                <h3 id="kpi-costo" class="text-2xl font-bold text-amber-400 mt-1">$ 0,00</h3>
                 <p class="text-xs text-slate-500 mt-1">Prorrateo horario de planta</p>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Unit. Promedio</p>
-                <h3 id="kpi-promedio" class="text-2xl font-bold text-indigo-400 mt-1">$ 0 / tn</h3>
+                <h3 id="kpi-promedio" class="text-2xl font-bold text-indigo-400 mt-1">$ 0,00 / tn</h3>
                 <p class="text-xs text-slate-500 mt-1">Costo medio ponderado</p>
             </div>
         </div>
 
         <!-- Gráficos Interactivos -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
-            <!-- Gráfico de Barras: Precio Vta vs Costo Real -->
+            <!-- Gráfico Combinado: Línea de Costos sobre Barras de Precios -->
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
-                <h2 class="text-base font-semibold text-white mb-4">Comparativa: Precio de Venta vs. Costo Unitario Real ($/tn)</h2>
+                <h2 class="text-base font-semibold text-white mb-4">Tendencia y Curva de Costo Real ($/tn) vs. Precio Venta</h2>
                 <div class="h-64">
                     <canvas id="chartPreciosCostos"></canvas>
                 </div>
@@ -93,7 +92,7 @@
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4 print-card">
             <div class="flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-white print-text">Matriz Operativa de Valor Neto de Realización</h2>
-                <span class="text-xs text-slate-500 print-text">Valores actualizados vía Supabase</span>
+                <span class="text-xs text-slate-500 print-text">Valores exactos con 2 decimales</span>
             </div>
             
             <div id="tabla-contenido" class="overflow-x-auto">
@@ -104,15 +103,26 @@
     </div>
 
     <script>
-        // Configuración de Supabase
         const supabaseUrl = 'https://yfakjwuyjbshgtdfwzmj.supabase.co';
-        // REEMPLAZA CON TU LLAVE ANON CON COMILLAS:
-        const supabaseKey = 'sb_publishable_qszfm0q2p-Ku11dyhOyT_g_mHdOmorF';
+        // PEGA AQUÍ TU LLAVE ANON CON COMILLAS SIMPLES:
+        const supabaseKey = 'PEGA_AQUI_TU_LLAVE_ANON';
 
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let chartPrecios = null;
         let chartDona = null;
+
+        // Función auxiliar para formatear moneda con 2 decimales exactos
+        function fmtMoneda(valor) {
+            if (valor == null || isNaN(valor)) return '-';
+            return '$ ' + Number(valor).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Función auxiliar para formatear números/porcentajes con 2 decimales
+        function fmtNum(valor, dec = 2) {
+            if (valor == null || isNaN(valor)) return '-';
+            return Number(valor).toLocaleString('es-AR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        }
 
         async function cargarDashboardVNR() {
             const contenedor = document.getElementById('tabla-contenido');
@@ -128,9 +138,12 @@
                 return;
             }
 
-            // Variables acumuladoras para KPIs
+            // Detectar la productividad base de planta (19.2) de la primera fila o calcular si variara
+            const primeraProd = Number(data[0].productividad_tnh) || 19.2;
+            const esMismaProd = data.every(r => Number(r.productividad_tnh) === primeraProd);
+            const prodGlobal = esMismaProd ? primeraProd : data.reduce((acc, r) => acc + (Number(r.productividad_tnh) || 0), 0);
+
             let totalIngreso = 0;
-            let totalProd = 0;
             let totalCostoConjunto = 0;
 
             let labels = [];
@@ -161,8 +174,8 @@
                 const precio = Number(row.precio_venta_tn) || 0;
                 const costoReal = Number(row.costo_unitario_real_tn) || 0;
                 const part = Number(row.participacion_ingreso_pct) || 0;
+                const rend = Number(row.rendimiento_pct);
 
-                totalProd += prod;
                 totalIngreso += ingreso;
                 totalCostoConjunto += costoConj;
 
@@ -174,37 +187,36 @@
                 html += `
                 <tr class="hover:bg-slate-800/50 transition">
                     <td class="p-3 font-semibold text-white print-text">${row.granulometria || '-'}</td>
-                    <td class="p-3 text-right text-slate-300 print-text">${row.rendimiento_pct != null ? row.rendimiento_pct + '%' : '-'}</td>
-                    <td class="p-3 text-right text-slate-300 print-text">${prod ? prod.toLocaleString() : '-'}</td>
-                    <td class="p-3 text-right text-slate-300 print-text">${precio ? '$ ' + precio.toLocaleString() : '-'}</td>
-                    <td class="p-3 text-right text-slate-300 print-text">${ingreso ? '$ ' + ingreso.toLocaleString() : '-'}</td>
-                    <td class="p-3 text-right text-slate-300 print-text">${part != null ? part + '%' : '-'}</td>
-                    <td class="p-3 text-right text-slate-300 print-text">${costoConj ? '$ ' + costoConj.toLocaleString() : '-'}</td>
-                    <td class="p-3 text-right font-bold text-emerald-400 print-text">${costoReal ? '$ ' + costoReal.toLocaleString() : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${!isNaN(rend) ? fmtNum(rend) + '%' : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${fmtNum(prod)}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${fmtMoneda(precio)}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${fmtMoneda(ingreso)}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${!isNaN(part) ? fmtNum(part) + '%' : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${fmtMoneda(costoConj)}</td>
+                    <td class="p-3 text-right font-bold text-emerald-400 print-text">${fmtMoneda(costoReal)}</td>
                 </tr>`;
             });
 
             html += `</tbody></table>`;
             contenedor.innerHTML = html;
 
-            // Actualizar KPIs
-            document.getElementById('kpi-ingreso').innerText = '$ ' + totalIngreso.toLocaleString();
-            document.getElementById('kpi-prod').innerText = totalProd.toLocaleString() + ' tn/h';
-            document.getElementById('kpi-costo').innerText = '$ ' + totalCostoConjunto.toLocaleString();
+            // Actualización precisa de Tarjetas KPIs
+            document.getElementById('kpi-ingreso').innerText = fmtMoneda(totalIngreso);
+            document.getElementById('kpi-prod').innerText = fmtNum(prodGlobal) + ' tn/h';
+            document.getElementById('kpi-costo').innerText = fmtMoneda(totalCostoConjunto);
             
-            const costoProm = totalProd > 0 ? (totalCostoConjunto / totalProd) : 0;
-            document.getElementById('kpi-promedio').innerText = '$ ' + costoProm.toLocaleString(undefined, {maximumFractionDigits: 2}) + ' / tn';
+            const costoProm = prodGlobal > 0 ? (totalCostoConjunto / prodGlobal) : 0;
+            document.getElementById('kpi-promedio').innerText = fmtMoneda(costoProm) + ' / tn';
 
-            // Renderizar Gráficos
+            // Renderizado de Gráficos con Líneas de Tendencia
             renderizarGraficos(labels, preciosVta, costosReales, participaciones);
         }
 
         function renderizarGraficos(labels, preciosVta, costosReales, participaciones) {
-            // Destruir instancias previas si existen
             if (chartPrecios) chartPrecios.destroy();
             if (chartDona) chartDona.destroy();
 
-            // 1. Gráfico de Barras (Precio vs Costo)
+            // Gráfico Combinado: Línea para Costos + Barras para Precios
             const ctxPrecios = document.getElementById('chartPreciosCostos').getContext('2d');
             chartPrecios = new Chart(ctxPrecios, {
                 type: 'bar',
@@ -212,31 +224,50 @@
                     labels: labels,
                     datasets: [
                         {
-                            label: 'Precio Venta ($/tn)',
-                            data: preciosVta,
-                            backgroundColor: '#3b82f6',
-                            borderRadius: 6
+                            type: 'line',
+                            label: 'Curva de Costo Real ($/tn)',
+                            data: costosReales,
+                            borderColor: '#10b981',
+                            backgroundColor: '#10b981',
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointBackgroundColor: '#34d399',
+                            tension: 0.3,
+                            fill: false,
+                            order: 1
                         },
                         {
-                            label: 'Costo Unitario Real ($/tn)',
-                            data: costosReales,
-                            backgroundColor: '#10b981',
-                            borderRadius: 6
+                            type: 'bar',
+                            label: 'Precio Venta ($/tn)',
+                            data: preciosVta,
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            borderColor: '#3b82f6',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            order: 2
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#94a3b8' } } },
+                    plugins: { 
+                        legend: { labels: { color: '#cbd5e1', font: { size: 12 } } } 
+                    },
                     scales: {
                         x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
-                        y: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } }
+                        y: { 
+                            ticks: { 
+                                color: '#94a3b8',
+                                callback: function(value) { return '$ ' + value.toLocaleString(); }
+                            }, 
+                            grid: { color: '#1e293b' } 
+                        }
                     }
                 }
             });
 
-            // 2. Gráfico de Dona (Participación)
+            // Gráfico de Dona
             const ctxDona = document.getElementById('chartParticipacion').getContext('2d');
             chartDona = new Chart(ctxDona, {
                 type: 'doughnut',
