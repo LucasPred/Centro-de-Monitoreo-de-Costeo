@@ -45,33 +45,32 @@
             </div>
         </div>
 
-        <!-- Tarjetas de KPIs (Indicadores Clave) -->
+        <!-- Tarjetas de KPIs (Sincronizadas con los Totales) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Ingreso Teórico Total</p>
                 <h3 id="kpi-ingreso" class="text-2xl font-bold text-emerald-400 mt-1">$ 0,00</h3>
-                <p class="text-xs text-slate-500 mt-1">Por hora de operación</p>
+                <p class="text-xs text-slate-500 mt-1">Suma del ingreso horario por malla</p>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
-                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Productividad por Hora</p>
+                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Productividad Total</p>
                 <h3 id="kpi-prod" class="text-2xl font-bold text-sky-400 mt-1">0,00 tn/h</h3>
-                <p class="text-xs text-slate-500 mt-1">Procesamiento total de planta</p>
+                <p class="text-xs text-slate-500 mt-1">Suma de producción horaria real</p>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Conjunto Total</p>
                 <h3 id="kpi-costo" class="text-2xl font-bold text-amber-400 mt-1">$ 0,00</h3>
-                <p class="text-xs text-slate-500 mt-1">Suma asignada por hora</p>
+                <p class="text-xs text-slate-500 mt-1">Total costo operativo de planta/hs</p>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Unit. Promedio</p>
                 <h3 id="kpi-promedio" class="text-2xl font-bold text-indigo-400 mt-1">$ 0,00 / tn</h3>
-                <p class="text-xs text-slate-500 mt-1">Costo medio ponderado</p>
+                <p class="text-xs text-slate-500 mt-1">Costo medio ponderado de producción</p>
             </div>
         </div>
 
         <!-- Gráficos Interactivos -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
-            <!-- Gráfico Combinado: Línea de Costos sobre Barras de Precios -->
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
                 <h2 class="text-base font-semibold text-white mb-4">Curva de Costo Real ($/tn) vs. Precio de Venta</h2>
                 <div class="h-64">
@@ -79,7 +78,6 @@
                 </div>
             </div>
 
-            <!-- Gráfico de Dona: % Participación en Ingresos -->
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
                 <h2 class="text-base font-semibold text-white mb-4">Participación por Malla (% Ingreso)</h2>
                 <div class="h-64 flex justify-center items-center">
@@ -88,15 +86,15 @@
             </div>
         </div>
 
-        <!-- Matriz VNR Completa -->
+        <!-- Matriz VNR Completa con Fila de Totales -->
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4 print-card">
             <div class="flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-white print-text">Matriz Operativa de Valor Neto de Realización</h2>
-                <span class="text-xs text-slate-500 print-text">Formato monetario regional es-AR</span>
+                <span class="text-xs text-slate-500 print-text">Suma y promedio exacto por columna</span>
             </div>
             
             <div id="tabla-contenido" class="overflow-x-auto">
-                <p class="text-slate-400 text-sm py-4">Cargando matriz VNR desde la base de datos...</p>
+                <p class="text-slate-400 text-sm py-4">Cargando datos desde Supabase...</p>
             </div>
         </div>
 
@@ -112,13 +110,11 @@
         let chartPrecios = null;
         let chartDona = null;
 
-        // Formateador estándar argentino ($ 59.000,00)
         function fmtMoneda(val) {
             if (val == null || isNaN(val)) return '-';
             return '$ ' + Number(val).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        // Formateador numérico de 2 decimales (19,20)
         function fmtNum(val, dec = 2) {
             if (val == null || isNaN(val)) return '-';
             return Number(val).toLocaleString('es-AR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
@@ -138,9 +134,19 @@
                 return;
             }
 
-            let totalProdHs = 0;
-            let totalIngreso = 0;
-            let totalCostoConjunto = 0;
+            // Excluir filas que contengan 'TOTAL' o 'PROMEDIO' en el nombre para evitar duplicar sumas
+            const filasMallas = data.filter(r => {
+                const nombre = (r.granulometria || '').toString().trim().toLowerCase();
+                return !nombre.startsWith('total') && !nombre.startsWith('promedio');
+            });
+
+            const filasProcesar = filasMallas.length > 0 ? filasMallas : data;
+
+            let sumRend = 0;
+            let sumProd = 0;
+            let sumIngreso = 0;
+            let sumPart = 0;
+            let sumCostoConj = 0;
 
             let labels = [];
             let preciosVta = [];
@@ -163,18 +169,20 @@
                 </thead>
                 <tbody class="divide-y divide-slate-800 text-sm">`;
 
-            data.forEach(row => {
+            filasProcesar.forEach(row => {
+                const rend = Number(row.rendimiento_pct) || 0;
                 const prod = Number(row.productividad_tnh) || 0;
-                const ingreso = Number(row.ingreso_teorico_hs) || 0;
-                const costoConj = Number(row.costo_conjunto_asignado_hs) || 0;
                 const precio = Number(row.precio_venta_tn) || 0;
-                const costoReal = Number(row.costo_unitario_real_tn) || 0;
+                const ingreso = Number(row.ingreso_teorico_hs) || 0;
                 const part = Number(row.participacion_ingreso_pct) || 0;
-                const rend = Number(row.rendimiento_pct);
+                const costoConj = Number(row.costo_conjunto_asignado_hs) || 0;
+                const costoReal = Number(row.costo_unitario_real_tn) || 0;
 
-                totalProdHs += prod;
-                totalIngreso += ingreso;
-                totalCostoConjunto += costoConj;
+                sumRend += rend;
+                sumProd += prod;
+                sumIngreso += ingreso;
+                sumPart += part;
+                sumCostoConj += costoConj;
 
                 labels.push(row.granulometria || 'Malla');
                 preciosVta.push(precio);
@@ -184,28 +192,44 @@
                 html += `
                 <tr class="hover:bg-slate-800/50 transition">
                     <td class="p-3 font-semibold text-white print-text">${row.granulometria || '-'}</td>
-                    <td class="p-3 text-right text-slate-300 print-text">${!isNaN(rend) ? fmtNum(rend) + '%' : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${fmtNum(rend)}%</td>
                     <td class="p-3 text-right text-slate-300 print-text">${fmtNum(prod)}</td>
                     <td class="p-3 text-right text-slate-300 print-text">${fmtMoneda(precio)}</td>
                     <td class="p-3 text-right text-slate-300 print-text">${fmtMoneda(ingreso)}</td>
-                    <td class="p-3 text-right text-slate-300 print-text">${!isNaN(part) ? fmtNum(part) + '%' : '-'}</td>
+                    <td class="p-3 text-right text-slate-300 print-text">${fmtNum(part)}%</td>
                     <td class="p-3 text-right text-slate-300 print-text">${fmtMoneda(costoConj)}</td>
                     <td class="p-3 text-right font-bold text-emerald-400 print-text">${fmtMoneda(costoReal)}</td>
                 </tr>`;
             });
 
-            html += `</tbody></table>`;
+            const costoPromPonderado = sumProd > 0 ? (sumCostoConj / sumProd) : 0;
+            const precioPromPonderado = sumProd > 0 ? (sumIngreso / sumProd) : 0;
+
+            // Fila de TOTALES al pie de la tabla
+            html += `
+            </tbody>
+            <tfoot>
+                <tr class="border-t-2 border-slate-700 bg-slate-950/80 text-sm font-bold text-white print-text">
+                    <td class="p-3">TOTAL / PROMEDIO PLANTA</td>
+                    <td class="p-3 text-right">${fmtNum(sumRend)}%</td>
+                    <td class="p-3 text-right text-sky-400">${fmtNum(sumProd)}</td>
+                    <td class="p-3 text-right text-slate-400">${fmtMoneda(precioPromPonderado)} (prom)</td>
+                    <td class="p-3 text-right text-emerald-400">${fmtMoneda(sumIngreso)}</td>
+                    <td class="p-3 text-right">${fmtNum(sumPart)}%</td>
+                    <td class="p-3 text-right text-amber-400">${fmtMoneda(sumCostoConj)}</td>
+                    <td class="p-3 text-right text-indigo-400">${fmtMoneda(costoPromPonderado)}</td>
+                </tr>
+            </tfoot>
+            </table>`;
+
             contenedor.innerHTML = html;
 
-            // Actualización exacta de Tarjetas KPIs
-            document.getElementById('kpi-ingreso').innerText = fmtMoneda(totalIngreso);
-            document.getElementById('kpi-prod').innerText = fmtNum(totalProdHs) + ' tn/h';
-            document.getElementById('kpi-costo').innerText = fmtMoneda(totalCostoConjunto);
-            
-            const costoProm = totalProdHs > 0 ? (totalCostoConjunto / totalProdHs) : 0;
-            document.getElementById('kpi-promedio').innerText = fmtMoneda(costoProm) + ' / tn';
+            // Asignación directa de Tarjetas KPIs
+            document.getElementById('kpi-ingreso').innerText = fmtMoneda(sumIngreso);
+            document.getElementById('kpi-prod').innerText = fmtNum(sumProd) + ' tn/h';
+            document.getElementById('kpi-costo').innerText = fmtMoneda(sumCostoConj);
+            document.getElementById('kpi-promedio').innerText = fmtMoneda(costoPromPonderado) + ' / tn';
 
-            // Renderizado de Gráficos
             renderizarGraficos(labels, preciosVta, costosReales, participaciones);
         }
 
@@ -213,7 +237,6 @@
             if (chartPrecios) chartPrecios.destroy();
             if (chartDona) chartDona.destroy();
 
-            // Gráfico Combinado
             const ctxPrecios = document.getElementById('chartPreciosCostos').getContext('2d');
             chartPrecios = new Chart(ctxPrecios, {
                 type: 'bar',
@@ -261,7 +284,6 @@
                 }
             });
 
-            // Gráfico de Dona
             const ctxDona = document.getElementById('chartParticipacion').getContext('2d');
             chartDona = new Chart(ctxDona, {
                 type: 'doughnut',
