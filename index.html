@@ -75,7 +75,7 @@
                         <h1 class="text-3xl font-extrabold text-white tracking-tight print-text">GRAVAFILT S.A.</h1>
                         <span class="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-500/30 font-semibold no-print">Control Operativo</span>
                     </div>
-                    <p class="text-slate-400 text-sm mt-1 print-text">Simulaciones de Producción, Flujo de Caja y Existencias Teóricas</p>
+                    <p class="text-slate-400 text-sm mt-1 print-text">Simulaciones de Producción, Liquidez y Espacios de Acopio</p>
                 </div>
                 
                 <div class="flex items-center gap-3 no-print">
@@ -95,10 +95,10 @@
                     📌 1. Matriz VNR y Costos
                 </button>
                 <button id="tab-btn-simulador" onclick="cambiarMicrositio('simulador')" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white">
-                    🧪 2. Simulador Interactivo de Liquidez
+                    🧪 2. Simulador Liquidez & Caja
                 </button>
                 <button id="tab-btn-stocks" onclick="cambiarMicrositio('stocks')" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white">
-                    📦 3. Existencias & Stocks Teóricos
+                    📦 3. Capacidad & Acopios Cancha (m²)
                 </button>
             </div>
         </div>
@@ -158,70 +158,44 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- MICROSITIO 2: SIMULADOR INTERACTIVO         -->
+        <!-- MICROSITIO 2: SIMULADOR DE LIQUIDEZ        -->
         <!-- ========================================== -->
         <div id="micrositio-simulador" class="hidden space-y-6">
-            
-            <!-- Barra Superior de Escenarios Rápidos (Presets) -->
             <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
                     <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                        <span>🧪 Simulador Dinámico de Escenarios</span>
+                        <span>🧪 Simulador Dinámico de Liquidez</span>
                     </h2>
-                    <p class="text-xs text-slate-400">Modifique variables en vivo para medir el impacto inmediato en liquidez y caja.</p>
+                    <p class="text-xs text-slate-400">Modifique variables en vivo para medir el impacto inmediato en caja.</p>
                 </div>
-                
                 <div class="flex flex-wrap gap-2">
-                    <button onclick="cargarPreset('base')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-xl font-semibold transition">
-                        🟢 Escenario Base
-                    </button>
-                    <button onclick="cargarPreset('estres')" class="bg-red-950/60 hover:bg-red-900/60 text-red-300 border border-red-800/50 text-xs px-3 py-2 rounded-xl font-semibold transition">
-                        🔴 Estrés / Alerta Liquidez
-                    </button>
-                    <button onclick="cargarPreset('vaca_muerta')" class="bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/50 text-xs px-3 py-2 rounded-xl font-semibold transition">
-                        🚀 Alta Demanda / Vaca Muerta
-                    </button>
+                    <button onclick="cargarPreset('base')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-xl font-semibold transition">🟢 Escenario Base</button>
+                    <button onclick="cargarPreset('estres')" class="bg-red-950/60 hover:bg-red-900/60 text-red-300 border border-red-800/50 text-xs px-3 py-2 rounded-xl font-semibold transition">🔴 Estrés Liquidez</button>
+                    <button onclick="cargarPreset('vaca_muerta')" class="bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/50 text-xs px-3 py-2 rounded-xl font-semibold transition">🚀 Vaca Muerta (Alta Demanda)</button>
                 </div>
             </div>
 
-            <!-- Panel de Controles Interactivos -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Columna Izquierda: Sliders Operativos -->
                 <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
                     <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">1. Parámetros Operativos & Costos</h3>
-                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Horas de Operación -->
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                             <div class="flex justify-between items-center">
                                 <label class="text-xs font-semibold text-slate-300">Horas Planta en Período:</label>
                                 <span id="lbl-sim-horas" class="text-sm font-bold text-sky-400">160 hs</span>
                             </div>
                             <input type="range" id="sim-horas" min="10" max="500" step="5" value="160" oninput="ejecutarSimulacion()" class="w-full accent-sky-500">
-                            <div class="flex justify-between text-[10px] text-slate-500">
-                                <span>10 hs (3 días)</span>
-                                <span>160 hs (1 mes)</span>
-                                <span>500 hs (2.5 meses)</span>
-                            </div>
                         </div>
-
-                        <!-- Variación de Costo de Planta -->
                         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
                             <div class="flex justify-between items-center">
                                 <label class="text-xs font-semibold text-slate-300">Ajuste Costo Operativo (%):</label>
                                 <span id="lbl-sim-costovar" class="text-sm font-bold text-amber-400">0%</span>
                             </div>
                             <input type="range" id="sim-costovar" min="-30" max="50" step="5" value="0" oninput="ejecutarSimulacion()" class="w-full accent-amber-500">
-                            <div class="flex justify-between text-[10px] text-slate-500">
-                                <span>-30% (Ahorro)</span>
-                                <span>0% (Actual)</span>
-                                <span>+50% (Aumento)</span>
-                            </div>
                         </div>
                     </div>
 
-                    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider pt-2">2. Política de Cobranzas & Liquidez</h3>
+                    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider pt-2">2. Política de Cobranzas</h3>
                     <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
@@ -237,21 +211,15 @@
                                 <input type="number" id="sim-cobro-60" min="0" max="100" value="20" oninput="ajustarCobros('60')" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm font-bold mt-1">
                             </div>
                         </div>
-                        <p class="text-[10px] text-slate-500">
-                            * Cobro a 30 días liquida el 70% en caja en el período; 60 días liquida solo el 30% en caja.
-                        </p>
                     </div>
                 </div>
 
-                <!-- Columna Derecha: Tarjeta de Resultados e Indicador de Salud de Caja -->
                 <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between space-y-4 shadow-xl">
                     <div class="space-y-4">
-                        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Resultado del Escenario</h3>
-                        
+                        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Resultado de Caja</h3>
                         <div id="sim-badge-estado" class="p-3 rounded-xl text-center font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                             SITUACIÓN: SUPERÁVIT OPERATIVO
                         </div>
-
                         <div class="space-y-3 pt-2">
                             <div class="flex justify-between items-center text-xs">
                                 <span class="text-slate-400">Facturación Bruta Tot.:</span>
@@ -271,59 +239,142 @@
                             </div>
                         </div>
                     </div>
-
-                    <!-- Gráfico Comparativo del Escenario -->
                     <div class="h-44 pt-2 border-t border-slate-800">
                         <canvas id="chartSimuladorCaja"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- Tabla Interactiva por Granulometría (Modificadores Individuales) -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
-                    <div>
-                        <h3 class="text-base font-bold text-white">3. Sensibilidad Fina por Granulometría</h3>
-                        <p class="text-xs text-slate-400">Ajuste el % de comercialización o modifique el precio unitario para evaluar el impacto de cada malla.</p>
+                <div class="flex justify-between items-center">
+                    <h3 class="text-base font-bold text-white">3. Sensibilidad Fina por Granulometría</h3>
+                    <button onclick="restablecerPreciosMallas()" class="text-xs text-blue-400 hover:underline">🔄 Restablecer base</button>
+                </div>
+                <div id="sim-tabla-mallas-interactiva" class="overflow-x-auto"></div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MICROSITIO 3: INTERACTIVO STOCKS & CANCHA  -->
+        <!-- ========================================== -->
+        <div id="micrositio-stocks" class="hidden space-y-6">
+            
+            <!-- Header & Presets del Micrositio 3 -->
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <span>📦 Simulador de Existencias & Capacidad de Acopio (m²)</span>
+                    </h2>
+                    <p class="text-xs text-slate-400">Audite el llenado físico de cancha al caer las ventas y proyecte m² requeridos por nivel de acumulación.</p>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="cargarPresetStock('normal')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-xl font-semibold transition">🟢 Despacho Normal (85%)</button>
+                    <button onclick="cargarPresetStock('freno_parcial')" class="bg-amber-950/60 hover:bg-amber-900/60 text-amber-300 border border-amber-800/50 text-xs px-3 py-2 rounded-xl font-semibold transition">🟡 Freno Parcial (40%)</button>
+                    <button onclick="cargarPresetStock('bloqueo_total')" class="bg-red-950/60 hover:bg-red-900/60 text-red-300 border border-red-800/50 text-xs px-3 py-2 rounded-xl font-semibold transition">🔴 Cero Despacho / Parada (0%)</button>
+                </div>
+            </div>
+
+            <!-- Controles Globales de Cancha -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
+                    <h3 class="text-sm font-bold text-indigo-400 uppercase tracking-wider">Variables Fisicas de Planta & Cancha</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Horas acumuladas -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-300">Horas Producción:</label>
+                                <span id="lbl-stock-horas" class="text-sm font-bold text-sky-400">160 hs</span>
+                            </div>
+                            <input type="range" id="stock-horas" min="10" max="320" step="10" value="160" oninput="ejecutarSimulacionStock()" class="w-full accent-sky-500">
+                            <span class="text-[10px] text-slate-500 block">Acumulado del período</span>
+                        </div>
+
+                        <!-- Superficie Disponible -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-300">Cancha Disponible:</label>
+                                <span id="lbl-stock-supdispon" class="text-sm font-bold text-indigo-400">10.000 m²</span>
+                            </div>
+                            <input type="range" id="stock-supdispon" min="2000" max="35000" step="500" value="10000" oninput="ejecutarSimulacionStock()" class="w-full accent-indigo-500">
+                            <span class="text-[10px] text-slate-500 block">Superficie útil total en planta</span>
+                        </div>
+
+                        <!-- Altura de Pila -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-300">Altura Prom. Pila:</label>
+                                <span id="lbl-stock-altura" class="text-sm font-bold text-amber-400">4,5 m</span>
+                            </div>
+                            <input type="range" id="stock-altura" min="2" max="8" step="0.5" value="4.5" oninput="ejecutarSimulacionStock()" class="w-full accent-amber-500">
+                            <span class="text-[10px] text-slate-500 block">Incluye ángulo de reposo</span>
+                        </div>
                     </div>
-                    <button onclick="restablecerPreciosMallas()" class="text-xs text-blue-400 hover:underline">
-                        🔄 Restablecer precios base
-                    </button>
+
+                    <div class="bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 text-xs text-slate-400 space-y-1">
+                        <p class="font-semibold text-slate-300">💡 Parámetros Estándar de Ingeniería Aplicados:</p>
+                        <p>• Densidad aparente arena procesada: <b class="text-slate-200">1,55 tn/m³</b> | Factor Pasillos & Maniobra Pala: <b class="text-slate-200">+30% espacio adicional</b>.</p>
+                    </div>
                 </div>
 
-                <div id="sim-tabla-mallas-interactiva" class="overflow-x-auto">
+                <!-- Tarjeta KPIs de Cancha -->
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between space-y-4 shadow-xl">
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Estado Físico de Cancha</h3>
+                        
+                        <div id="stock-badge-estado" class="p-3 rounded-xl text-center font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            CANCHA EN FLUIDEZ NORMAL
+                        </div>
+
+                        <div class="space-y-3 pt-1">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Total Stock Acumulado:</span>
+                                <span id="stock-kpi-toneladas" class="font-bold text-sky-400">0,00 tn</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Volumen Físico Requerido:</span>
+                                <span id="stock-kpi-volumen" class="font-bold text-slate-200">0,00 m³</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Superficie Requerida (m²):</span>
+                                <span id="stock-kpi-supocupada" class="font-bold text-indigo-400">0 m²</span>
+                            </div>
+                            <div class="border-t border-slate-800 pt-2 flex justify-between items-center text-xs">
+                                <span class="text-slate-300 font-semibold">Ocupación Real de Cancha:</span>
+                                <span id="stock-kpi-pctocupado" class="font-bold text-emerald-400 text-sm">0.0%</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs border-t border-slate-800 pt-2">
+                                <span class="text-slate-400">Capital Inmovilizado Stock:</span>
+                                <span id="stock-kpi-capital" class="font-extrabold text-amber-400">$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-40 pt-2 border-t border-slate-800">
+                        <canvas id="chartStockCancha"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla Matriz de Superficie de Acopio por Granulometría -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+                <div>
+                    <h3 class="text-base font-bold text-white">Disponibilidad Estándar de Superficie (m²) por Niveles de Acopio Mensual</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Calculado sobre la base de 1 mes de producción (160 hs). Permite medir la tolerancia de acumulación antes del colapso de planta.</p>
+                </div>
+
+                <div id="stock-tabla-matriz" class="overflow-x-auto">
                     <!-- Generado dinámicamente por JS -->
                 </div>
             </div>
 
         </div>
 
-        <!-- ========================================== -->
-        <!-- MICROSITIO 3: EXISTENCIAS Y STOCKS        -->
-        <!-- ========================================== -->
-        <div id="micrositio-stocks" class="hidden space-y-6">
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
-                <div class="flex flex-col md:flex-row justify-between md:items-center gap-2">
-                    <div>
-                        <h2 class="text-xl font-bold text-white">Control de Existencias Teóricas por Granulometría</h2>
-                        <p class="text-xs text-slate-400 mt-1">Diferencial acumulado entre volumen procesado y volumen despachado en cancha/silos.</p>
-                    </div>
-                    <div class="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 text-right">
-                        <span class="text-xs text-slate-400 block">Capital Inmovilizado en Stock:</span>
-                        <span id="stock-val-total" class="text-lg font-bold text-indigo-400">$ 0,00</span>
-                    </div>
-                </div>
-
-                <div id="tabla-stocks-contenido" class="overflow-x-auto">
-                    <!-- Generado por JS -->
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <footer class="text-center py-6 text-xs text-slate-600 no-print">
-        GRAVAFILT S.A. &copy; 2026 | Sistema de Control de Costos Conjuntos y Simulaciones Interactivas
+        GRAVAFILT S.A. &copy; 2026 | Sistema Integrado de Costos, Liquidez y Capacidad de Cancha
     </footer>
 
     <script>
@@ -334,14 +385,22 @@
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let globalData = [];
+        
+        // Estado Simulador Liquidez (M2)
         let stateSimulador = {
             preciosModificados: {},
             despachosModificados: {}
         };
 
+        // Estado Simulador Stocks & Cancha (M3)
+        let stateStocks = {
+            despachosStock: {}
+        };
+
         let chartPrecios = null;
         let chartDona = null;
         let chartSimCaja = null;
+        let chartStockCancha = null;
 
         function fmtMoneda(val) {
             if (val == null || isNaN(val)) return '-';
@@ -429,11 +488,11 @@
             } else if (nombre === 'simulador') {
                 m2.classList.remove('hidden');
                 btn2.className = estiloActivo;
-                inicializarSimulador();
+                ejecutarSimulacion();
             } else if (nombre === 'stocks') {
                 m3.classList.remove('hidden');
                 btn3.className = estiloActivo;
-                cargarTablaStocks();
+                ejecutarSimulacionStock();
             }
         }
 
@@ -600,25 +659,17 @@
         }
 
         // ==========================================
-        // MICROSITIO 2: LOGICA INTERACTIVA DEL SIMULADOR
+        // MICROSITIO 2: LOGICA SIMULADOR LIQUIDEZ
         // ==========================================
-        function inicializarSimulador() {
-            ejecutarSimulacion();
-        }
-
         function ajustarCobros(origen) {
             let cContado = Number(document.getElementById('sim-cobro-contado').value) || 0;
             let c30 = Number(document.getElementById('sim-cobro-30').value) || 0;
             let c60 = Number(document.getElementById('sim-cobro-60').value) || 0;
 
-            let total = cContado + c30 + c60;
-            if (total !== 100) {
-                // Ajuste proporcional dinámico
-                if (origen === 'contado') {
-                    let resto = 100 - cContado;
-                    document.getElementById('sim-cobro-30').value = Math.max(0, Math.round(resto * 0.75));
-                    document.getElementById('sim-cobro-60').value = Math.max(0, 100 - cContado - Number(document.getElementById('sim-cobro-30').value));
-                }
+            if (origen === 'contado') {
+                let resto = 100 - cContado;
+                document.getElementById('sim-cobro-30').value = Math.max(0, Math.round(resto * 0.75));
+                document.getElementById('sim-cobro-60').value = Math.max(0, 100 - cContado - Number(document.getElementById('sim-cobro-30').value));
             }
             ejecutarSimulacion();
         }
@@ -634,13 +685,13 @@
                 stateSimulador.despachosModificados = {};
             } else if (tipo === 'estres') {
                 document.getElementById('sim-horas').value = 120;
-                document.getElementById('sim-costovar').value = 15; // +15% de costo
+                document.getElementById('sim-costovar').value = 15;
                 document.getElementById('sim-cobro-contado').value = 0;
                 document.getElementById('sim-cobro-30').value = 30;
-                document.getElementById('sim-cobro-60').value = 70; // Fuertemente diferido
+                document.getElementById('sim-cobro-60').value = 70;
             } else if (tipo === 'vaca_muerta') {
-                document.getElementById('sim-horas').value = 240; // Doble turno
-                document.getElementById('sim-costovar').value = -5; // Eficiencia de escala
+                document.getElementById('sim-horas').value = 240;
+                document.getElementById('sim-costovar').value = -5;
                 document.getElementById('sim-cobro-contado').value = 50;
                 document.getElementById('sim-cobro-30').value = 50;
                 document.getElementById('sim-cobro-60').value = 0;
@@ -649,11 +700,8 @@
         }
 
         function actualizarMallaSimulacion(id, campo, val) {
-            if (campo === 'precio') {
-                stateSimulador.preciosModificados[id] = Number(val);
-            } else if (campo === 'despacho') {
-                stateSimulador.despachosModificados[id] = Number(val);
-            }
+            if (campo === 'precio') stateSimulador.preciosModificados[id] = Number(val);
+            else if (campo === 'despacho') stateSimulador.despachosModificados[id] = Number(val);
             ejecutarSimulacion();
         }
 
@@ -694,7 +742,6 @@
                 const prodHs = Number(row.productividad_tnh) || 0;
                 const prodPeriodo = prodHs * horas;
 
-                // Modificadores de usuario o valores base
                 const precioBase = Number(row.precio_venta_tn) || 0;
                 const precioUsar = stateSimulador.preciosModificados[id] !== undefined ? stateSimulador.preciosModificados[id] : precioBase;
                 
@@ -728,13 +775,10 @@
             htmlTabla += `</tbody></table>`;
             document.getElementById('sim-tabla-mallas-interactiva').innerHTML = htmlTabla;
 
-            // Factor de liquidez en caja según mix
-            // Contado = 100% liquidez en período; 30d = 70% liquidez; 60d = 30% liquidez
             const factorLiquidez = ((cobroContado * 1.0) + (cobro30 * 0.70) + (cobro60 * 0.30)) / 100;
             const cajaEfectiva = facturacionTotal * factorLiquidez;
             const flujoCajaNeto = cajaEfectiva - costoPlantaTotal;
 
-            // Renderizar KPIs
             document.getElementById('sim-res-facturacion').innerText = fmtMoneda(facturacionTotal);
             document.getElementById('sim-res-costo').innerText = fmtMoneda(costoPlantaTotal);
             document.getElementById('sim-res-caja-efectiva').innerText = fmtMoneda(cajaEfectiva);
@@ -766,11 +810,7 @@
                     labels: ['Facturado', 'Costo Operativo', 'Caja Cobrada'],
                     datasets: [{
                         data: [fact, costo, caja],
-                        backgroundColor: [
-                            'rgba(59, 130, 246, 0.8)',
-                            'rgba(245, 158, 11, 0.8)',
-                            'rgba(16, 185, 129, 0.8)'
-                        ],
+                        backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(245, 158, 11, 0.8)', 'rgba(16, 185, 129, 0.8)'],
                         borderRadius: 6
                     }]
                 },
@@ -786,58 +826,174 @@
             });
         }
 
-        // Micrositio 3: Stocks
-        function cargarTablaStocks() {
-            const contenedor = document.getElementById('tabla-stocks-contenido');
-            let capitalTotalStock = 0;
+        // ==========================================
+        // MICROSITIO 3: LOGICA INTERACTIVA STOCKS & CANCHA (m²)
+        // ==========================================
+        function cargarPresetStock(tipo) {
+            if (tipo === 'normal') {
+                document.getElementById('stock-horas').value = 160;
+                globalData.forEach(row => { stateStocks.despachosStock[row.id] = 85; });
+            } else if (tipo === 'freno_parcial') {
+                document.getElementById('stock-horas').value = 160;
+                globalData.forEach(row => { stateStocks.despachosStock[row.id] = 40; });
+            } else if (tipo === 'bloqueo_total') {
+                document.getElementById('stock-horas').value = 160;
+                globalData.forEach(row => { stateStocks.despachosStock[row.id] = 0; }); // Cero Despacho
+            }
+            ejecutarSimulacionStock();
+        }
 
-            let html = `
-            <table class="w-full text-left border-collapse text-sm">
+        function actualizarMallaStock(id, val) {
+            stateStocks.despachosStock[id] = Number(val);
+            ejecutarSimulacionStock();
+        }
+
+        function ejecutarSimulacionStock() {
+            const horas = Number(document.getElementById('stock-horas').value) || 0;
+            const supDisponible = Number(document.getElementById('stock-supdispon').value) || 10000;
+            const alturaPila = Number(document.getElementById('stock-altura').value) || 4.5;
+
+            document.getElementById('lbl-stock-horas').innerText = horas + ' hs';
+            document.getElementById('lbl-stock-supdispon').innerText = supDisponible.toLocaleString('es-AR') + ' m²';
+            document.getElementById('lbl-stock-altura').innerText = fmtNum(alturaPila, 1) + ' m';
+
+            // Parámetros de Ingeniería de Arenas:
+            const DENSIDAD_ARENA = 1.55; // tn por m3
+            const FACTOR_PASILLOS = 1.30; // 30% espacio extra para taludes y palas cargadoras
+
+            let totalStockTn = 0;
+            let totalVolumenM3 = 0;
+            let totalSupRequeridaM2 = 0;
+            let totalCapitalStock = 0;
+
+            let htmlTablaMatriz = `
+            <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase bg-slate-950">
-                        <th class="p-3">Granulometría / Malla</th>
-                        <th class="p-3 text-right">Prod. Horaria (tn/h)</th>
-                        <th class="p-3 text-right">Stock Teórico Est. (30d)</th>
-                        <th class="p-3 text-right">Costo VNR $/tn</th>
-                        <th class="p-3 text-right">Capital Inmovilizado</th>
-                        <th class="p-3 text-center">Estado Cancha</th>
+                    <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-950">
+                        <th class="p-2.5">Granulometría / Malla</th>
+                        <th class="p-2.5 text-right">Prod. (${horas}h)</th>
+                        <th class="p-2.5 text-center font-bold text-sky-400">% Despacho</th>
+                        <th class="p-2.5 text-right font-bold text-amber-400">Stock Result. (tn)</th>
+                        <th class="p-2.5 text-right">Sup. Actual (m²)</th>
+                        <th class="p-2.5 text-center bg-slate-900/80 border-l border-slate-800 text-slate-300">25% Acopio Mensual</th>
+                        <th class="p-2.5 text-center bg-slate-900/80 text-slate-300">50% Acopio Mensual</th>
+                        <th class="p-2.5 text-center bg-slate-900/80 text-slate-300">75% Acopio Mensual</th>
+                        <th class="p-2.5 text-center bg-slate-900/80 text-amber-300 font-bold">100% Acopio Mensual</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800">`;
 
             globalData.forEach(row => {
+                const id = row.id;
                 const prodHs = Number(row.productividad_tnh) || 0;
+                const prodPeriodo = prodHs * horas;
                 const costoReal = Number(row.costo_unitario_real_tn) || 0;
-                const nombre = (row.granulometria || '').toString().toLowerCase();
 
-                let diasStock = 5;
-                if (nombre.includes('inferior') || nombre.includes('descarte') || nombre.includes('sobrante')) {
-                    diasStock = 20;
-                }
+                const despachoPct = stateStocks.despachosStock[id] !== undefined ? stateStocks.despachosStock[id] : 80;
+                
+                // Acopio actual simulado
+                const tnDespachadas = prodPeriodo * (despachoPct / 100);
+                const stockTnActual = Math.max(0, prodPeriodo - tnDespachadas);
+                const capitalMalla = stockTnActual * costoReal;
 
-                const stockTn = prodHs * 16 * diasStock;
-                const capitalInmov = stockTn * costoReal;
-                capitalTotalStock += capitalInmov;
+                const volM3Actual = stockTnActual / DENSIDAD_ARENA;
+                const supM2Actual = (volM3Actual / alturaPila) * FACTOR_PASILLOS;
 
-                let badgeEstado = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2.5 py-1 rounded-full font-semibold">Fluidez Alta</span>`;
-                if (diasStock > 10) {
-                    badgeEstado = `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-2.5 py-1 rounded-full font-semibold">Acumulación / Cancha</span>`;
-                }
+                totalStockTn += stockTnActual;
+                totalVolumenM3 += volM3Actual;
+                totalSupRequeridaM2 += supM2Actual;
+                totalCapitalStock += capitalMalla;
 
-                html += `
+                // Cálculo de m2 teóricos para 1 mes completo (160 hs) al 25%, 50%, 75%, 100%
+                const prodMes160hs = prodHs * 160; // 100% acopio mensual en tn
+                const calcSupM2 = (pct) => {
+                    const tn = prodMes160hs * pct;
+                    const vol = tn / DENSIDAD_ARENA;
+                    return (vol / alturaPila) * FACTOR_PASILLOS;
+                };
+
+                const sup25 = calcSupM2(0.25);
+                const sup50 = calcSupM2(0.50);
+                const sup75 = calcSupM2(0.75);
+                const sup100 = calcSupM2(1.00);
+
+                htmlTablaMatriz += `
                 <tr class="hover:bg-slate-800/40">
-                    <td class="p-3 font-semibold text-white">${row.granulometria}</td>
-                    <td class="p-3 text-right text-slate-300">${fmtNum(prodHs)} tn/h</td>
-                    <td class="p-3 text-right text-sky-400 font-bold">${fmtNum(stockTn)} tn</td>
-                    <td class="p-3 text-right text-slate-300">${fmtMoneda(costoReal)}</td>
-                    <td class="p-3 text-right text-indigo-300 font-bold">${fmtMoneda(capitalInmov)}</td>
-                    <td class="p-3 text-center">${badgeEstado}</td>
+                    <td class="p-2.5 font-semibold text-white">${row.granulometria}</td>
+                    <td class="p-2.5 text-right text-slate-300">${fmtNum(prodPeriodo)} tn</td>
+                    <td class="p-2.5 text-center">
+                        <input type="number" min="0" max="100" value="${despachoPct}" onchange="actualizarMallaStock(${id}, this.value)" 
+                            class="w-16 bg-slate-950 border border-slate-700 rounded text-center py-1 text-xs text-sky-400 font-bold focus:border-blue-500"> %
+                    </td>
+                    <td class="p-2.5 text-right font-bold text-amber-300">${fmtNum(stockTnActual)} tn</td>
+                    <td class="p-2.5 text-right font-bold text-indigo-300">${fmtNum(supM2Actual, 0)} m²</td>
+                    
+                    <!-- Tolerancia de Acopios Mensuales -->
+                    <td class="p-2.5 text-center bg-slate-950/40 border-l border-slate-800 text-slate-400">${fmtNum(sup25, 0)} m²</td>
+                    <td class="p-2.5 text-center bg-slate-950/40 text-slate-300">${fmtNum(sup50, 0)} m²</td>
+                    <td class="p-2.5 text-center bg-slate-950/40 text-amber-400 font-semibold">${fmtNum(sup75, 0)} m²</td>
+                    <td class="p-2.5 text-center bg-slate-950/60 text-emerald-400 font-bold">${fmtNum(sup100, 0)} m²</td>
                 </tr>`;
             });
 
-            html += `</tbody></table>`;
-            contenedor.innerHTML = html;
-            document.getElementById('stock-val-total').innerText = fmtMoneda(capitalTotalStock);
+            htmlTablaMatriz += `</tbody></table>`;
+            document.getElementById('stock-tabla-matriz').innerHTML = htmlTablaMatriz;
+
+            // KPIs & Alertas de Cancha
+            const pctOcupacion = (totalSupRequeridaM2 / supDisponible) * 100;
+
+            document.getElementById('stock-kpi-toneladas').innerText = fmtNum(totalStockTn) + ' tn';
+            document.getElementById('stock-kpi-volumen').innerText = fmtNum(totalVolumenM3, 0) + ' m³';
+            document.getElementById('stock-kpi-supocupada').innerText = fmtNum(totalSupRequeridaM2, 0) + ' m²';
+            document.getElementById('stock-kpi-pctocupado').innerText = fmtNum(pctOcupacion, 1) + '%';
+            document.getElementById('stock-kpi-capital').innerText = fmtMoneda(totalCapitalStock);
+
+            const badgeCancha = document.getElementById('stock-badge-estado');
+            const kpiOcupText = document.getElementById('stock-kpi-pctocupado');
+
+            if (pctOcupacion > 100) {
+                badgeCancha.className = "p-3 rounded-xl text-center font-bold text-xs bg-red-500/20 text-red-400 border border-red-500/30";
+                badgeCancha.innerText = "⚠️ ALERTA: SATURACIÓN / CRÍTICO EN CANCHA";
+                kpiOcupText.className = "font-bold text-red-400 text-sm";
+            } else if (pctOcupacion > 75) {
+                badgeCancha.className = "p-3 rounded-xl text-center font-bold text-xs bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                badgeCancha.innerText = "⚡ PRECAUCIÓN: ALTA OCUPACIÓN DE ESPACIO";
+                kpiOcupText.className = "font-bold text-amber-400 text-sm";
+            } else {
+                badgeCancha.className = "p-3 rounded-xl text-center font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                badgeCancha.innerText = "CANCHA EN FLUIDEZ NORMAL";
+                kpiOcupText.className = "font-bold text-emerald-400 text-sm";
+            }
+
+            renderizarGraficoStocks(totalSupRequeridaM2, supDisponible);
+        }
+
+        function renderizarGraficoStocks(ocupado, disponible) {
+            if (chartStockCancha) chartStockCancha.destroy();
+
+            const libre = Math.max(0, disponible - ocupado);
+            const ctx = document.getElementById('chartStockCancha').getContext('2d');
+
+            chartStockCancha = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Superficie Ocupada (m²)', 'Superficie Libre (m²)'],
+                    datasets: [{
+                        data: [ocupado, libre],
+                        backgroundColor: [
+                            ocupado > disponible ? '#ef4444' : '#6366f1',
+                            '#1e293b'
+                        ],
+                        borderWidth: 1,
+                        borderColor: '#0f172a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#cbd5e1', font: { size: 10 } } } }
+                }
+            });
         }
 
         // Iniciar
