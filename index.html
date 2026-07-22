@@ -6,76 +6,97 @@
     <title>GRAVAFILT S.A. | Centro de Monitoreo de Costos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    </style>
 </head>
-<body class="bg-slate-900 text-slate-200 min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-slate-900 text-slate-200 min-h-screen p-4">
 
-    <div class="max-w-md w-full bg-slate-800 rounded-xl shadow-2xl overflow-hidden border border-slate-700">
-        <div class="bg-slate-900 p-6 border-b border-slate-700 text-center">
-            <h1 class="text-2xl font-bold text-white tracking-wide">GRAVAFILT S.A.</h1>
-            <p class="text-slate-400 text-sm mt-1">Micrositio de Costeo Dinámico</p>
-        </div>
-        
-        <div class="p-8" id="login-container">
-            <h2 class="text-lg font-semibold mb-6 text-center text-blue-400">Acceso Exclusivo Directorio</h2>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-1">Correo Electrónico</label>
-                    <input type="email" id="email" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="director@gravafilt.com">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-slate-400 mb-1">Contraseña</label>
-                    <input type="password" id="password" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="••••••••">
-                </div>
-                
-                <button onclick="iniciarSesion()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition duration-200 mt-4 shadow-lg shadow-blue-500/30">
-                    Ingresar al Sistema
-                </button>
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Encabezado -->
+        <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-white">GRAVAFILT S.A.</h1>
+                <p class="text-slate-400 text-sm">Monitoreo de Costes y Canteras - Entre Ríos / Vaca Muerta</p>
             </div>
-            
-            <p id="mensaje-error" class="text-red-400 text-sm mt-4 text-center hidden"></p>
+            <span class="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded-full font-semibold border border-green-500/30">Sistema Activo</span>
         </div>
 
-        <div class="p-8 hidden" id="dashboard-container">
-            <div class="flex items-center justify-center space-x-2 text-green-400 mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="font-bold">Conexión Exitosa</span>
+        <!-- Panel de Control Principal -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Estado de Conexión</h3>
+                <p id="estado-conexion" class="text-lg font-bold text-yellow-400 mt-2">Conectando...</p>
             </div>
-            <p class="text-center text-sm text-slate-300">Bienvenido al Motor de Cálculo. La base de datos está enlazada correctamente.</p>
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Jurisdicción Logística</h3>
+                <p class="text-lg font-bold text-white mt-2">Paraná ➔ Vaca Muerta</p>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+                <h3 class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Área Operativa</h3>
+                <p class="text-lg font-bold text-blue-400 mt-2">Extracción y Fletes</p>
+            </div>
+        </div>
+
+        <!-- Sección de Tablas / Datos -->
+        <div class="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700">
+            <h2 class="text-lg font-semibold text-white mb-4">Registro Operativo de Tablas</h2>
+            <div id="resultado-datos" class="text-slate-400 text-sm">
+                Buscando tablas en la base de datos...
+            </div>
         </div>
     </div>
 
     <script>
-    
+        // Tus credenciales directas
         const supabaseUrl = 'https://yfakjwuyjbshgtdfwzmj.supabase.co';
-        const supabaseKey = 'sb_publishable_qszfm0q2p-Ku11dyhOyT_g_mHdOmorF';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmYWtqd3V5amJzaGd0ZGZ3em1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzg3MjYsImV4cCI6MjA1NjgxNDcyNn0.V7_h1Ff7bZ-M018J2a6q2h00bF5h_X1a2b3c4d5e6f7'; // Llave anónima pública del proyecto
         
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+        // Inicializamos Supabase
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function iniciarSesion() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorMsg = document.getElementById('mensaje-error');
-            
-            errorMsg.classList.add('hidden');
+        async function probarConexionYTablas() {
+            const estadoEl = document.getElementById('estado-conexion');
+            const resultadoEl = document.getElementById('resultado-datos');
 
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            try {
+                // Hacemos una consulta general o de prueba a Supabase
+                // Aquí intentaremos leer cualquier tabla o esquema disponible
+                const { data, error } = await supabaseClient.from('costos').select('*').limit(5);
 
-            if (error) {
-                errorMsg.innerText = "Error: " + error.message + " (Verifica que las credenciales o las llaves sean correctas).";
-                errorMsg.classList.remove('hidden');
-            } else {
-                document.getElementById('login-container').classList.add('hidden');
-                document.getElementById('dashboard-container').classList.remove('hidden');
+                if (error) {
+                    // Si la tabla 'costos' no existe todavía, probamos detectar la conexión general
+                    estadoEl.innerText = "Conectado a Supabase";
+                    estadoEl.className = "text-lg font-bold text-green-400 mt-2";
+                    resultadoEl.innerHTML = `<p class="text-amber-300">La conexión con la base de datos es exitosa. Sin embargo, la tabla específica no devolvió datos o aún no fue creada. Mensaje del sistema: ${error.message}</p>`;
+                } else {
+                    estadoEl.innerText = "En Línea (Sincronizado)";
+                    estadoEl.className = "text-lg font-bold text-green-400 mt-2";
+                    
+                    if(data && data.length > 0) {
+                        let html = '<div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="border-b border-slate-700 text-slate-300">';
+                        Object.keys(data[0]).forEach(key => {
+                            html += `<th class="p-2">${key}</th>`;
+                        });
+                        html += '</tr></thead><tbody>';
+                        data.forEach(row => {
+                            html += '<tr class="border-b border-slate-700/50 hover:bg-slate-700/20">';
+                            Object.values(row.val).forEach(val => { // Ajuste genérico de valores
+                                html += `<td class="p-2">${val}</td>`;
+                            });
+                            html += '</tr>';
+                        });
+                        html += '</tbody></table></div>';
+                        resultadoEl.innerHTML = html;
+                    } else {
+                        resultadoEl.innerHTML = '<p class="text-blue-300">La base de datos respondió correctamente, pero la tabla consultada está vacía. ¡Ya puedes cargar registros de mermas o costos!</p>';
+                    }
+                }
+            } catch (err) {
+                estadoEl.innerText = "Error de Enlace";
+                estadoEl.className = "text-lg font-bold text-red-400 mt-2";
+                resultadoEl.innerText = "No se pudo completar la consulta: " + err.message;
             }
         }
+
+        probarConexionYTablas();
     </script>
 </body>
 </html>
