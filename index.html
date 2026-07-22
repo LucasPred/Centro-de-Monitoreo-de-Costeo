@@ -95,7 +95,7 @@
                     📌 1. Matriz VNR y Costos
                 </button>
                 <button id="tab-btn-simulador" onclick="cambiarMicrositio('simulador')" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white">
-                    🧪 2. Simulador Liquidez & Caja
+                    🧪 2. Simulador Interactivo de Liquidez
                 </button>
                 <button id="tab-btn-stocks" onclick="cambiarMicrositio('stocks')" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white">
                     📦 3. Existencias & Stocks Teóricos
@@ -107,7 +107,6 @@
         <!-- MICROSITIO 1: MATRIZ VNR Y COSTOS          -->
         <!-- ========================================== -->
         <div id="micrositio-vnr" class="space-y-6">
-            <!-- Tarjetas KPIs -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
                 <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                     <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Ingreso Teórico Total</p>
@@ -131,7 +130,6 @@
                 </div>
             </div>
 
-            <!-- Gráficos VNR -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
                 <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
                     <h2 class="text-base font-semibold text-white mb-4">Curva de Costo Real ($/tn) vs. Precio de Venta</h2>
@@ -148,7 +146,6 @@
                 </div>
             </div>
 
-            <!-- Matriz Operativa VNR -->
             <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4 print-card">
                 <div class="flex justify-between items-center">
                     <h2 class="text-lg font-semibold text-white print-text">Matriz Operativa de Valor Neto de Realización (VNR)</h2>
@@ -161,72 +158,144 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- MICROSITIO 2: SIMULADOR LIQUIDEZ Y CAJA    -->
+        <!-- MICROSITIO 2: SIMULADOR INTERACTIVO         -->
         <!-- ========================================== -->
         <div id="micrositio-simulador" class="hidden space-y-6">
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
+            
+            <!-- Barra Superior de Escenarios Rápidos (Presets) -->
+            <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h2 class="text-xl font-bold text-white">Simulador de Impacto en Flujo de Caja y Liquidez</h2>
-                    <p class="text-xs text-slate-400 mt-1">Evalúe el resultado operativo modificando horas de trabajo, colocación de material inferior/descarte y plazos de cobro.</p>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <span>🧪 Simulador Dinámico de Escenarios</span>
+                    </h2>
+                    <p class="text-xs text-slate-400">Modifique variables en vivo para medir el impacto inmediato en liquidez y caja.</p>
                 </div>
+                
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="cargarPreset('base')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-xl font-semibold transition">
+                        🟢 Escenario Base
+                    </button>
+                    <button onclick="cargarPreset('estres')" class="bg-red-950/60 hover:bg-red-900/60 text-red-300 border border-red-800/50 text-xs px-3 py-2 rounded-xl font-semibold transition">
+                        🔴 Estrés / Alerta Liquidez
+                    </button>
+                    <button onclick="cargarPreset('vaca_muerta')" class="bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/50 text-xs px-3 py-2 rounded-xl font-semibold transition">
+                        🚀 Alta Demanda / Vaca Muerta
+                    </button>
+                </div>
+            </div>
 
-                <!-- Parámetros de Ventana de Control -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                        <label class="text-xs font-semibold uppercase text-slate-400 block">Horas de Operación Proyectadas</label>
-                        <input type="number" id="sim-horas" value="160" oninput="ejecutarSimulacion()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm focus:border-blue-500 focus:outline-none">
-                        <span class="text-[10px] text-slate-500">Total horas planta en el mes/período</span>
-                    </div>
+            <!-- Panel de Controles Interactivos -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Columna Izquierda: Sliders Operativos -->
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
+                    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">1. Parámetros Operativos & Costos</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Horas de Operación -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-300">Horas Planta en Período:</label>
+                                <span id="lbl-sim-horas" class="text-sm font-bold text-sky-400">160 hs</span>
+                            </div>
+                            <input type="range" id="sim-horas" min="10" max="500" step="5" value="160" oninput="ejecutarSimulacion()" class="w-full accent-sky-500">
+                            <div class="flex justify-between text-[10px] text-slate-500">
+                                <span>10 hs (3 días)</span>
+                                <span>160 hs (1 mes)</span>
+                                <span>500 hs (2.5 meses)</span>
+                            </div>
+                        </div>
 
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                        <label class="text-xs font-semibold uppercase text-slate-400 block">% Despacho Material Inferior / Descarte</label>
-                        <input type="range" id="sim-pct-inferior" min="0" max="100" value="50" oninput="ejecutarSimulacion()" class="w-full">
-                        <div class="flex justify-between text-xs text-slate-300">
-                            <span>Comercializado:</span>
-                            <span id="lbl-sim-inferior" class="font-bold text-amber-400">50%</span>
+                        <!-- Variación de Costo de Planta -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <label class="text-xs font-semibold text-slate-300">Ajuste Costo Operativo (%):</label>
+                                <span id="lbl-sim-costovar" class="text-sm font-bold text-amber-400">0%</span>
+                            </div>
+                            <input type="range" id="sim-costovar" min="-30" max="50" step="5" value="0" oninput="ejecutarSimulacion()" class="w-full accent-amber-500">
+                            <div class="flex justify-between text-[10px] text-slate-500">
+                                <span>-30% (Ahorro)</span>
+                                <span>0% (Actual)</span>
+                                <span>+50% (Aumento)</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
-                        <label class="text-xs font-semibold uppercase text-slate-400 block">Plazo Promedio de Cobro (Días)</label>
-                        <select id="sim-plazo" onchange="ejecutarSimulacion()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm focus:border-blue-500 focus:outline-none">
-                            <option value="0">Contado / Liquidez Inmediata</option>
-                            <option value="30" selected>30 Días de Plazo</option>
-                            <option value="60">60 Días de Plazo</option>
-                        </select>
-                        <span class="text-[10px] text-slate-500">Efecto diferimiento sobre caja actual</span>
+                    <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider pt-2">2. Política de Cobranzas & Liquidez</h3>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="text-[11px] text-slate-400 block">% Cobro Contado</label>
+                                <input type="number" id="sim-cobro-contado" min="0" max="100" value="20" oninput="ajustarCobros('contado')" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm font-bold mt-1">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 block">% Cobro 30 Días</label>
+                                <input type="number" id="sim-cobro-30" min="0" max="100" value="60" oninput="ajustarCobros('30')" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm font-bold mt-1">
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-400 block">% Cobro 60 Días</label>
+                                <input type="number" id="sim-cobro-60" min="0" max="100" value="20" oninput="ajustarCobros('60')" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm font-bold mt-1">
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-500">
+                            * Cobro a 30 días liquida el 70% en caja en el período; 60 días liquida solo el 30% en caja.
+                        </p>
                     </div>
                 </div>
 
-                <!-- Resultados de la Simulación de Caja -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-800 pt-6">
-                    <div class="bg-emerald-950/40 border border-emerald-500/30 p-5 rounded-xl">
-                        <p class="text-xs uppercase text-emerald-400 font-semibold">Facturación Bruta Proyectada</p>
-                        <h3 id="sim-res-facturacion" class="text-2xl font-bold text-emerald-300 mt-2">$ 0,00</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Ingreso según despacho de mallas + subproductos</p>
+                <!-- Columna Derecha: Tarjeta de Resultados e Indicador de Salud de Caja -->
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between space-y-4 shadow-xl">
+                    <div class="space-y-4">
+                        <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Resultado del Escenario</h3>
+                        
+                        <div id="sim-badge-estado" class="p-3 rounded-xl text-center font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            SITUACIÓN: SUPERÁVIT OPERATIVO
+                        </div>
+
+                        <div class="space-y-3 pt-2">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Facturación Bruta Tot.:</span>
+                                <span id="sim-res-facturacion" class="font-bold text-white">$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-400">Costo Operativo Planta:</span>
+                                <span id="sim-res-costo" class="font-bold text-amber-400">$ 0,00</span>
+                            </div>
+                            <div class="border-t border-slate-800 pt-2 flex justify-between items-center text-xs">
+                                <span class="text-slate-300 font-semibold">Caja Cobrada Efectiva:</span>
+                                <span id="sim-res-caja-efectiva" class="font-bold text-sky-400">$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm border-t border-slate-800 pt-2">
+                                <span class="text-slate-200 font-bold">Flujo Neto de Caja:</span>
+                                <span id="sim-res-caja-neta" class="font-extrabold text-emerald-400 text-lg">$ 0,00</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="bg-amber-950/40 border border-amber-500/30 p-5 rounded-xl">
-                        <p class="text-xs uppercase text-amber-400 font-semibold">Costo Operativo Directo Planta</p>
-                        <h3 id="sim-res-costo" class="text-2xl font-bold text-amber-300 mt-2">$ 0,00</h3>
-                        <p class="text-[11px] text-slate-400 mt-1">Costo total acumulado en las horas elegidas</p>
-                    </div>
-
-                    <div class="bg-blue-950/40 border border-blue-500/30 p-5 rounded-xl">
-                        <p class="text-xs uppercase text-blue-400 font-semibold">Margen Operativo de Caja (Cash Flow)</p>
-                        <h3 id="sim-res-caja" class="text-2xl font-bold text-blue-300 mt-2">$ 0,00</h3>
-                        <p id="sim-res-cobertura" class="text-[11px] text-slate-400 mt-1">Ratio de Cobertura: 0.0x</p>
-                    </div>
-                </div>
-
-                <!-- Tabla Detalle por Granulometría en la Simulación -->
-                <div class="space-y-2">
-                    <h3 class="text-sm font-semibold text-slate-300">Detalle de Ventas vs Producción en el Período</h3>
-                    <div id="sim-tabla-detalle" class="overflow-x-auto">
-                        <!-- Generado por JS -->
+                    <!-- Gráfico Comparativo del Escenario -->
+                    <div class="h-44 pt-2 border-t border-slate-800">
+                        <canvas id="chartSimuladorCaja"></canvas>
                     </div>
                 </div>
             </div>
+
+            <!-- Tabla Interactiva por Granulometría (Modificadores Individuales) -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                    <div>
+                        <h3 class="text-base font-bold text-white">3. Sensibilidad Fina por Granulometría</h3>
+                        <p class="text-xs text-slate-400">Ajuste el % de comercialización o modifique el precio unitario para evaluar el impacto de cada malla.</p>
+                    </div>
+                    <button onclick="restablecerPreciosMallas()" class="text-xs text-blue-400 hover:underline">
+                        🔄 Restablecer precios base
+                    </button>
+                </div>
+
+                <div id="sim-tabla-mallas-interactiva" class="overflow-x-auto">
+                    <!-- Generado dinámicamente por JS -->
+                </div>
+            </div>
+
         </div>
 
         <!-- ========================================== -->
@@ -253,9 +322,8 @@
 
     </div>
 
-    <!-- Footer -->
     <footer class="text-center py-6 text-xs text-slate-600 no-print">
-        GRAVAFILT S.A. &copy; 2026 | Sistema de Control de Costos Conjuntos y Simulaciones
+        GRAVAFILT S.A. &copy; 2026 | Sistema de Control de Costos Conjuntos y Simulaciones Interactivas
     </footer>
 
     <script>
@@ -266,8 +334,14 @@
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
         let globalData = [];
+        let stateSimulador = {
+            preciosModificados: {},
+            despachosModificados: {}
+        };
+
         let chartPrecios = null;
         let chartDona = null;
+        let chartSimCaja = null;
 
         function fmtMoneda(val) {
             if (val == null || isNaN(val)) return '-';
@@ -328,7 +402,7 @@
             mostrarLogin();
         }
 
-        // Cambio entre Micrositios
+        // Cambio de Micrositios
         function cambiarMicrositio(nombre) {
             const m1 = document.getElementById('micrositio-vnr');
             const m2 = document.getElementById('micrositio-simulador');
@@ -355,7 +429,7 @@
             } else if (nombre === 'simulador') {
                 m2.classList.remove('hidden');
                 btn2.className = estiloActivo;
-                ejecutarSimulacion();
+                inicializarSimulador();
             } else if (nombre === 'stocks') {
                 m3.classList.remove('hidden');
                 btn3.className = estiloActivo;
@@ -363,7 +437,7 @@
             }
         }
 
-        // Carga Inicial de Datos desde Supabase
+        // Carga Inicial
         async function cargarDatosPrincipales() {
             const contenedor = document.getElementById('tabla-contenido');
             const { data, error } = await supabaseClient.from('costos').select('*').order('id', { ascending: true });
@@ -381,7 +455,7 @@
             renderizarVNR();
         }
 
-        // Render Micrositio 1 (VNR)
+        // Micrositio 1: VNR
         function renderizarVNR() {
             const contenedor = document.getElementById('tabla-contenido');
             let sumRend = 0, sumProd = 0, sumIngreso = 0, sumPart = 0, sumCostoConj = 0;
@@ -462,10 +536,10 @@
             document.getElementById('kpi-costo').innerText = fmtMoneda(sumCostoConj);
             document.getElementById('kpi-promedio').innerText = fmtMoneda(costoPromPonderado) + ' / tn';
 
-            renderizarGraficos(labels, preciosVta, costosReales, participaciones);
+            renderizarGraficosVNR(labels, preciosVta, costosReales, participaciones);
         }
 
-        function renderizarGraficos(labels, preciosVta, costosReales, participaciones) {
+        function renderizarGraficosVNR(labels, preciosVta, costosReales, participaciones) {
             if (chartPrecios) chartPrecios.destroy();
             if (chartDona) chartDona.destroy();
 
@@ -525,88 +599,194 @@
             });
         }
 
-        // Render Micrositio 2 (Simulador de Liquidez)
+        // ==========================================
+        // MICROSITIO 2: LOGICA INTERACTIVA DEL SIMULADOR
+        // ==========================================
+        function inicializarSimulador() {
+            ejecutarSimulacion();
+        }
+
+        function ajustarCobros(origen) {
+            let cContado = Number(document.getElementById('sim-cobro-contado').value) || 0;
+            let c30 = Number(document.getElementById('sim-cobro-30').value) || 0;
+            let c60 = Number(document.getElementById('sim-cobro-60').value) || 0;
+
+            let total = cContado + c30 + c60;
+            if (total !== 100) {
+                // Ajuste proporcional dinámico
+                if (origen === 'contado') {
+                    let resto = 100 - cContado;
+                    document.getElementById('sim-cobro-30').value = Math.max(0, Math.round(resto * 0.75));
+                    document.getElementById('sim-cobro-60').value = Math.max(0, 100 - cContado - Number(document.getElementById('sim-cobro-30').value));
+                }
+            }
+            ejecutarSimulacion();
+        }
+
+        function cargarPreset(tipo) {
+            if (tipo === 'base') {
+                document.getElementById('sim-horas').value = 160;
+                document.getElementById('sim-costovar').value = 0;
+                document.getElementById('sim-cobro-contado').value = 20;
+                document.getElementById('sim-cobro-30').value = 60;
+                document.getElementById('sim-cobro-60').value = 20;
+                stateSimulador.preciosModificados = {};
+                stateSimulador.despachosModificados = {};
+            } else if (tipo === 'estres') {
+                document.getElementById('sim-horas').value = 120;
+                document.getElementById('sim-costovar').value = 15; // +15% de costo
+                document.getElementById('sim-cobro-contado').value = 0;
+                document.getElementById('sim-cobro-30').value = 30;
+                document.getElementById('sim-cobro-60').value = 70; // Fuertemente diferido
+            } else if (tipo === 'vaca_muerta') {
+                document.getElementById('sim-horas').value = 240; // Doble turno
+                document.getElementById('sim-costovar').value = -5; // Eficiencia de escala
+                document.getElementById('sim-cobro-contado').value = 50;
+                document.getElementById('sim-cobro-30').value = 50;
+                document.getElementById('sim-cobro-60').value = 0;
+            }
+            ejecutarSimulacion();
+        }
+
+        function actualizarMallaSimulacion(id, campo, val) {
+            if (campo === 'precio') {
+                stateSimulador.preciosModificados[id] = Number(val);
+            } else if (campo === 'despacho') {
+                stateSimulador.despachosModificados[id] = Number(val);
+            }
+            ejecutarSimulacion();
+        }
+
+        function restablecerPreciosMallas() {
+            stateSimulador.preciosModificados = {};
+            stateSimulador.despachosModificados = {};
+            ejecutarSimulacion();
+        }
+
         function ejecutarSimulacion() {
             const horas = Number(document.getElementById('sim-horas').value) || 0;
-            const pctInferior = Number(document.getElementById('sim-pct-inferior').value) || 0;
-            const plazo = Number(document.getElementById('sim-plazo').value) || 0;
+            const costoVarPct = Number(document.getElementById('sim-costovar').value) || 0;
+            const cobroContado = Number(document.getElementById('sim-cobro-contado').value) || 0;
+            const cobro30 = Number(document.getElementById('sim-cobro-30').value) || 0;
+            const cobro60 = Number(document.getElementById('sim-cobro-60').value) || 0;
 
-            document.getElementById('lbl-sim-inferior').innerText = pctInferior + '%';
+            document.getElementById('lbl-sim-horas').innerText = horas + ' hs';
+            document.getElementById('lbl-sim-costovar').innerText = (costoVarPct > 0 ? '+' : '') + costoVarPct + '%';
 
-            let totalProducidoTn = 0;
-            let totalFacturacionBruta = 0;
-            let totalCostoPlanta = 0;
+            let facturacionTotal = 0;
+            let costoPlantaTotal = 0;
 
-            let htmlDetalle = `
+            let htmlTabla = `
             <table class="w-full text-left border-collapse text-xs">
                 <thead>
                     <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-950">
-                        <th class="p-2.5">Malla</th>
-                        <th class="p-2.5 text-right">Prod. Horaria</th>
-                        <th class="p-2.5 text-right">Prod. Período (${horas}h)</th>
-                        <th class="p-2.5 text-right">% Despachado</th>
-                        <th class="p-2.5 text-right">Facturación Estimada</th>
+                        <th class="p-2.5">Granulometría / Malla</th>
+                        <th class="p-2.5 text-right">Prod. (${horas}h)</th>
+                        <th class="p-2.5 text-center font-bold text-blue-400">% Despacho</th>
+                        <th class="p-2.5 text-center font-bold text-blue-400">Precio $/tn</th>
+                        <th class="p-2.5 text-right">Facturación Est.</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800">`;
 
             globalData.forEach(row => {
-                const nombre = (row.granulometria || '').toString().toLowerCase();
+                const id = row.id;
                 const prodHs = Number(row.productividad_tnh) || 0;
-                const precio = Number(row.precio_venta_tn) || 0;
-                const costoHs = Number(row.costo_conjunto_asignado_hs) || 0;
-
                 const prodPeriodo = prodHs * horas;
-                totalProducidoTn += prodPeriodo;
-                totalCostoPlanta += (costoHs * horas);
 
-                // Determinar si es material inferior/descarte o producto principal
-                let pctVenta = 100;
-                if (nombre.includes('inferior') || nombre.includes('descarte') || nombre.includes('sobrante') || precio < 10000) {
-                    pctVenta = pctInferior;
-                }
+                // Modificadores de usuario o valores base
+                const precioBase = Number(row.precio_venta_tn) || 0;
+                const precioUsar = stateSimulador.preciosModificados[id] !== undefined ? stateSimulador.preciosModificados[id] : precioBase;
+                
+                const despachoBase = 100;
+                const despachoUsar = stateSimulador.despachosModificados[id] !== undefined ? stateSimulador.despachosModificados[id] : despachoBase;
 
-                const tnVendidas = prodPeriodo * (pctVenta / 100);
-                const facturacionMalla = tnVendidas * precio;
-                totalFacturacionBruta += facturacionMalla;
+                const tnVendidas = prodPeriodo * (despachoUsar / 100);
+                const facturacionMalla = tnVendidas * precioUsar;
+                facturacionTotal += facturacionMalla;
 
-                htmlDetalle += `
+                const costoBaseHs = Number(row.costo_conjunto_asignado_hs) || 0;
+                const costoAjustadoHs = costoBaseHs * (1 + (costoVarPct / 100));
+                costoPlantaTotal += (costoAjustadoHs * horas);
+
+                htmlTabla += `
                 <tr class="hover:bg-slate-800/40">
-                    <td class="p-2.5 font-medium text-white">${row.granulometria}</td>
-                    <td class="p-2.5 text-right text-slate-300">${fmtNum(prodHs)} tn/h</td>
-                    <td class="p-2.5 text-right text-sky-400 font-semibold">${fmtNum(prodPeriodo)} tn</td>
-                    <td class="p-2.5 text-right ${pctVenta < 100 ? 'text-amber-400' : 'text-emerald-400'}">${pctVenta}%</td>
-                    <td class="p-2.5 text-right text-emerald-300 font-bold">${fmtMoneda(facturacionMalla)}</td>
+                    <td class="p-2.5 font-semibold text-white">${row.granulometria}</td>
+                    <td class="p-2.5 text-right text-sky-400 font-bold">${fmtNum(prodPeriodo)} tn</td>
+                    <td class="p-2.5 text-center">
+                        <input type="number" min="0" max="100" value="${despachoUsar}" onchange="actualizarMallaSimulacion(${id}, 'despacho', this.value)" 
+                            class="w-16 bg-slate-950 border border-slate-700 rounded text-center py-1 text-xs text-white focus:border-blue-500"> %
+                    </td>
+                    <td class="p-2.5 text-center">
+                        $ <input type="number" step="500" value="${precioUsar}" onchange="actualizarMallaSimulacion(${id}, 'precio', this.value)" 
+                            class="w-24 bg-slate-950 border border-slate-700 rounded text-center py-1 text-xs text-emerald-400 font-bold focus:border-blue-500">
+                    </td>
+                    <td class="p-2.5 text-right font-bold text-emerald-300">${fmtMoneda(facturacionMalla)}</td>
                 </tr>`;
             });
 
-            htmlDetalle += `</tbody></table>`;
-            document.getElementById('sim-tabla-detalle').innerHTML = htmlDetalle;
+            htmlTabla += `</tbody></table>`;
+            document.getElementById('sim-tabla-mallas-interactiva').innerHTML = htmlTabla;
 
-            // Factor de liquidez según plazo
-            let factorLiquidez = 1.0;
-            if (plazo === 30) factorLiquidez = 0.70;
-            else if (plazo === 60) factorLiquidez = 0.40;
+            // Factor de liquidez en caja según mix
+            // Contado = 100% liquidez en período; 30d = 70% liquidez; 60d = 30% liquidez
+            const factorLiquidez = ((cobroContado * 1.0) + (cobro30 * 0.70) + (cobro60 * 0.30)) / 100;
+            const cajaEfectiva = facturacionTotal * factorLiquidez;
+            const flujoCajaNeto = cajaEfectiva - costoPlantaTotal;
 
-            const cajaCobradaEfectiva = totalFacturacionBruta * factorLiquidez;
-            const flujoCajaNeto = cajaCobradaEfectiva - totalCostoPlanta;
-            const ratioCobertura = totalCostoPlanta > 0 ? (cajaCobradaEfectiva / totalCostoPlanta) : 0;
-
-            document.getElementById('sim-res-facturacion').innerText = fmtMoneda(totalFacturacionBruta);
-            document.getElementById('sim-res-costo').innerText = fmtMoneda(totalCostoPlanta);
-            document.getElementById('sim-res-caja').innerText = fmtMoneda(flujoCajaNeto);
-
-            const elemRatio = document.getElementById('sim-res-cobertura');
-            elemRatio.innerText = `Caja Inmediata Est.: ${fmtMoneda(cajaCobradaEfectiva)} (Cobertura: ${fmtNum(ratioCobertura, 2)}x)`;
+            // Renderizar KPIs
+            document.getElementById('sim-res-facturacion').innerText = fmtMoneda(facturacionTotal);
+            document.getElementById('sim-res-costo').innerText = fmtMoneda(costoPlantaTotal);
+            document.getElementById('sim-res-caja-efectiva').innerText = fmtMoneda(cajaEfectiva);
             
+            const elemFlujo = document.getElementById('sim-res-caja-neta');
+            elemFlujo.innerText = fmtMoneda(flujoCajaNeto);
+
+            const badge = document.getElementById('sim-badge-estado');
             if (flujoCajaNeto < 0) {
-                elemRatio.className = "text-[11px] text-red-400 font-semibold mt-1";
+                elemFlujo.className = "font-extrabold text-red-400 text-lg";
+                badge.className = "p-3 rounded-xl text-center font-bold text-xs bg-red-500/20 text-red-400 border border-red-500/30";
+                badge.innerText = "⚠️ SITUACIÓN: DÉFICIT DE LIQUIDEZ Y CAJA";
             } else {
-                elemRatio.className = "text-[11px] text-emerald-400 font-semibold mt-1";
+                elemFlujo.className = "font-extrabold text-emerald-400 text-lg";
+                badge.className = "p-3 rounded-xl text-center font-bold text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                badge.innerText = "SITUACIÓN: SUPERÁVIT OPERATIVO";
             }
+
+            renderizarGraficoSimulador(facturacionTotal, costoPlantaTotal, cajaEfectiva);
         }
 
-        // Render Micrositio 3 (Stocks Teóricos)
+        function renderizarGraficoSimulador(fact, costo, caja) {
+            if (chartSimCaja) chartSimCaja.destroy();
+
+            const ctx = document.getElementById('chartSimuladorCaja').getContext('2d');
+            chartSimCaja = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Facturado', 'Costo Operativo', 'Caja Cobrada'],
+                    datasets: [{
+                        data: [fact, costo, caja],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#94a3b8', font: { size: 9 }, callback: function(v) { return '$ ' + (v/1000000).toFixed(1) + 'M'; } }, grid: { color: '#1e293b' } }
+                    }
+                }
+            });
+        }
+
+        // Micrositio 3: Stocks
         function cargarTablaStocks() {
             const contenedor = document.getElementById('tabla-stocks-contenido');
             let capitalTotalStock = 0;
@@ -630,13 +810,12 @@
                 const costoReal = Number(row.costo_unitario_real_tn) || 0;
                 const nombre = (row.granulometria || '').toString().toLowerCase();
 
-                // Estimación teórica de acumulación a 1 mes
-                let diasStock = 5; // Mallas principales rotan más
+                let diasStock = 5;
                 if (nombre.includes('inferior') || nombre.includes('descarte') || nombre.includes('sobrante')) {
-                    diasStock = 20; // Material inferior se acumula más días
+                    diasStock = 20;
                 }
 
-                const stockTn = prodHs * 16 * diasStock; // 16 hs/día
+                const stockTn = prodHs * 16 * diasStock;
                 const capitalInmov = stockTn * costoReal;
                 capitalTotalStock += capitalInmov;
 
