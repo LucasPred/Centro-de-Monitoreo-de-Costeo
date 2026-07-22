@@ -53,14 +53,14 @@
                 <p class="text-xs text-slate-500 mt-1">Por hora de operación</p>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
-                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Productividad Global</p>
-                <h3 id="kpi-prod" class="text-2xl font-bold text-sky-400 mt-1">19,20 tn/h</h3>
-                <p class="text-xs text-slate-500 mt-1">Base estándar @ 4% Humedad</p>
+                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Productividad por Hora</p>
+                <h3 id="kpi-prod" class="text-2xl font-bold text-sky-400 mt-1">0,00 tn/h</h3>
+                <p class="text-xs text-slate-500 mt-1">Procesamiento total de planta</p>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Conjunto Total</p>
                 <h3 id="kpi-costo" class="text-2xl font-bold text-amber-400 mt-1">$ 0,00</h3>
-                <p class="text-xs text-slate-500 mt-1">Prorrateo horario de planta</p>
+                <p class="text-xs text-slate-500 mt-1">Suma asignada por hora</p>
             </div>
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Unit. Promedio</p>
@@ -73,7 +73,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
             <!-- Gráfico Combinado: Línea de Costos sobre Barras de Precios -->
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
-                <h2 class="text-base font-semibold text-white mb-4">Tendencia y Curva de Costo Real ($/tn) vs. Precio Venta</h2>
+                <h2 class="text-base font-semibold text-white mb-4">Curva de Costo Real ($/tn) vs. Precio de Venta</h2>
                 <div class="h-64">
                     <canvas id="chartPreciosCostos"></canvas>
                 </div>
@@ -92,7 +92,7 @@
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4 print-card">
             <div class="flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-white print-text">Matriz Operativa de Valor Neto de Realización</h2>
-                <span class="text-xs text-slate-500 print-text">Valores exactos con 2 decimales</span>
+                <span class="text-xs text-slate-500 print-text">Formato monetario regional es-AR</span>
             </div>
             
             <div id="tabla-contenido" class="overflow-x-auto">
@@ -104,7 +104,7 @@
 
     <script>
         const supabaseUrl = 'https://yfakjwuyjbshgtdfwzmj.supabase.co';
-        // PEGA AQUÍ TU LLAVE ANON CON COMILLAS SIMPLES:
+        // REEMPLAZA CON TU LLAVE ANON REAL ENTRE COMILLAS:
         const supabaseKey = 'sb_publishable_qszfm0q2p-Ku11dyhOyT_g_mHdOmorF';
 
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -112,16 +112,16 @@
         let chartPrecios = null;
         let chartDona = null;
 
-        // Función auxiliar para formatear moneda con 2 decimales exactos
-        function fmtMoneda(valor) {
-            if (valor == null || isNaN(valor)) return '-';
-            return '$ ' + Number(valor).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        // Formateador estándar argentino ($ 59.000,00)
+        function fmtMoneda(val) {
+            if (val == null || isNaN(val)) return '-';
+            return '$ ' + Number(val).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
-        // Función auxiliar para formatear números/porcentajes con 2 decimales
-        function fmtNum(valor, dec = 2) {
-            if (valor == null || isNaN(valor)) return '-';
-            return Number(valor).toLocaleString('es-AR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        // Formateador numérico de 2 decimales (19,20)
+        function fmtNum(val, dec = 2) {
+            if (val == null || isNaN(val)) return '-';
+            return Number(val).toLocaleString('es-AR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
         }
 
         async function cargarDashboardVNR() {
@@ -138,11 +138,7 @@
                 return;
             }
 
-            // Detectar la productividad base de planta (19.2) de la primera fila o calcular si variara
-            const primeraProd = Number(data[0].productividad_tnh) || 19.2;
-            const esMismaProd = data.every(r => Number(r.productividad_tnh) === primeraProd);
-            const prodGlobal = esMismaProd ? primeraProd : data.reduce((acc, r) => acc + (Number(r.productividad_tnh) || 0), 0);
-
+            let totalProdHs = 0;
             let totalIngreso = 0;
             let totalCostoConjunto = 0;
 
@@ -176,6 +172,7 @@
                 const part = Number(row.participacion_ingreso_pct) || 0;
                 const rend = Number(row.rendimiento_pct);
 
+                totalProdHs += prod;
                 totalIngreso += ingreso;
                 totalCostoConjunto += costoConj;
 
@@ -200,15 +197,15 @@
             html += `</tbody></table>`;
             contenedor.innerHTML = html;
 
-            // Actualización precisa de Tarjetas KPIs
+            // Actualización exacta de Tarjetas KPIs
             document.getElementById('kpi-ingreso').innerText = fmtMoneda(totalIngreso);
-            document.getElementById('kpi-prod').innerText = fmtNum(prodGlobal) + ' tn/h';
+            document.getElementById('kpi-prod').innerText = fmtNum(totalProdHs) + ' tn/h';
             document.getElementById('kpi-costo').innerText = fmtMoneda(totalCostoConjunto);
             
-            const costoProm = prodGlobal > 0 ? (totalCostoConjunto / prodGlobal) : 0;
+            const costoProm = totalProdHs > 0 ? (totalCostoConjunto / totalProdHs) : 0;
             document.getElementById('kpi-promedio').innerText = fmtMoneda(costoProm) + ' / tn';
 
-            // Renderizado de Gráficos con Líneas de Tendencia
+            // Renderizado de Gráficos
             renderizarGraficos(labels, preciosVta, costosReales, participaciones);
         }
 
@@ -216,7 +213,7 @@
             if (chartPrecios) chartPrecios.destroy();
             if (chartDona) chartDona.destroy();
 
-            // Gráfico Combinado: Línea para Costos + Barras para Precios
+            // Gráfico Combinado
             const ctxPrecios = document.getElementById('chartPreciosCostos').getContext('2d');
             chartPrecios = new Chart(ctxPrecios, {
                 type: 'bar',
@@ -225,14 +222,13 @@
                     datasets: [
                         {
                             type: 'line',
-                            label: 'Curva de Costo Real ($/tn)',
+                            label: 'Costo Unitario Real ($/tn)',
                             data: costosReales,
                             borderColor: '#10b981',
                             backgroundColor: '#10b981',
                             borderWidth: 3,
-                            pointRadius: 6,
-                            pointBackgroundColor: '#34d399',
-                            tension: 0.3,
+                            pointRadius: 5,
+                            tension: 0.2,
                             fill: false,
                             order: 1
                         },
@@ -251,15 +247,13 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { labels: { color: '#cbd5e1', font: { size: 12 } } } 
-                    },
+                    plugins: { legend: { labels: { color: '#cbd5e1' } } },
                     scales: {
                         x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
                         y: { 
                             ticks: { 
                                 color: '#94a3b8',
-                                callback: function(value) { return '$ ' + value.toLocaleString(); }
+                                callback: function(v) { return '$ ' + v.toLocaleString('es-AR'); }
                             }, 
                             grid: { color: '#1e293b' } 
                         }
