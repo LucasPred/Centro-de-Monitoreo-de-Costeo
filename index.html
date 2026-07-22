@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAVAFILT S.A. | Centro de Costeo</title>
+    <!-- Usamos Tailwind CSS vía CDN para estilos rápidos y modernos sin compilar -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-4 md:p-8">
+
+    <!-- Encabezado -->
+    <header class="flex flex-col md:flex-row justify-between items-center border-b border-slate-700 pb-4 mb-8">
+        <h1 class="text-2xl md:text-3xl font-bold">Monitor de Costos y Pricing</h1>
+        <div class="text-right mt-4 md:mt-0">
+            <p class="text-sm text-slate-400">Cotización BNA Vendedor (Automático)</p>
+            <p class="text-xl font-mono text-green-400" id="bna-value">Cargando...</p>
+        </div>
+    </header>
+
+    <!-- Contenedor dinámico donde JavaScript inyectará las tarjetas de materiales -->
+    <main id="tablero-materiales" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Las tarjetas se generan aquí automáticamente -->
+    </main>
+
+    <!-- Script de lógica: Esto lee la base de datos y dibuja la interfaz -->
+    <script>
+        // 1. Simulación de llamada a la Base de Datos (Supabase) y API del BNA
+        async function cargarDatos() {
+            // Aquí en el futuro conectarás con la base de datos real
+            const tipoCambioUSD = 1050.50; 
+            document.getElementById('bna-value').innerText = `1 USD = $${tipoCambioUSD}`;
+
+            // Datos simulados extraídos del Historial de Costos
+            const datosCosteo = [
+                { material: 'Arena Fina 0-1mm', costoARS: 15400, stock: 1250, rendimiento: 85, estado: 'verde' },
+                { material: 'Grava 10-30mm', costoARS: 18200, stock: 840, rendimiento: 60, estado: 'rojo' }
+            ];
+
+            renderizarTablero(datosCosteo, tipoCambioUSD);
+        }
+
+        // 2. Función para crear las tarjetas HTML dinámicamente con semáforos
+        function renderizarTablero(datos, usd) {
+            const contenedor = document.getElementById('tablero-materiales');
+            contenedor.innerHTML = ''; // Limpiar el área
+
+            datos.forEach(item => {
+                // Lógica del semáforo
+                let colorSemaforo = item.estado === 'rojo' ? 'bg-red-500' : 'bg-green-500';
+                let costoUSD = (item.costoARS / usd).toFixed(2);
+
+                // Inyección de HTML
+                const tarjetaHTML = `
+                    <div class="bg-slate-800 rounded-xl p-6 shadow-lg border border-slate-700 relative">
+                        <!-- Semáforo Superior Derecho -->
+                        <div class="absolute top-4 right-4 w-4 h-4 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)] ${colorSemaforo}"></div>
+                        
+                        <h2 class="text-xl font-semibold mb-4 pr-8">${item.material}</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-sm text-slate-400">Costo Unitario (ARS)</p>
+                                <p class="text-2xl font-bold">$${item.costoARS.toLocaleString('es-AR')}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-400">Valorización USD</p>
+                                <p class="text-xl font-mono text-slate-300">U$D ${costoUSD}</p>
+                            </div>
+                            
+                            <div class="pt-4 border-t border-slate-600 flex justify-between">
+                                <div>
+                                    <p class="text-xs text-slate-400">Rendimiento</p>
+                                    <p class="font-bold">${item.rendimiento}%</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-slate-400">Stock App</p>
+                                    <p class="font-bold">${item.stock} ton</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                contenedor.innerHTML += tarjetaHTML;
+            });
+        }
+
+        // Ejecutar al cargar la página
+        window.onload = cargarDatos;
+    </script>
+</body>
+</html>
