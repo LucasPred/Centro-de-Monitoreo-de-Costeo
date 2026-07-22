@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GRAVAFILT S.A. | Acceso Restringido - Centro VNR</title>
+    <title>GRAVAFILT S.A. | Plataforma Integral de Operaciones & VNR</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS -->
@@ -23,23 +23,23 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col justify-center">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col justify-between">
 
     <!-- ========================================== -->
-    <!-- PANTALLA 1: FORMULARIO DE ACCESO (LOGIN)   -->
+    <!-- PANTALLA 1: ACCESO RESTRINGIDO (LOGIN)     -->
     <!-- ========================================== -->
-    <div id="pantalla-login" class="max-w-md w-full mx-auto p-6">
+    <div id="pantalla-login" class="max-w-md w-full mx-auto my-auto p-6">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl space-y-6">
             <div class="text-center space-y-2">
                 <h1 class="text-2xl font-extrabold text-white tracking-tight">GRAVAFILT S.A.</h1>
-                <p class="text-xs text-blue-400 font-semibold uppercase tracking-widest">Acceso Restringido a Directivos</p>
-                <p class="text-slate-400 text-xs mt-1">Ingrese sus credenciales corporativas para acceder a la Matriz VNR & Costos de Planta.</p>
+                <p class="text-xs text-blue-400 font-semibold uppercase tracking-widest">Portal Directivo & Operativo</p>
+                <p class="text-slate-400 text-xs mt-1">Ingrese sus credenciales corporativas para acceder a los simuladores de planta.</p>
             </div>
 
             <form id="login-form" onsubmit="iniciarSesion(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Correo Electrónico</label>
-                    <input type="email" id="login-email" required placeholder="usuario@gravafilt.com.ar" 
+                    <input type="email" id="login-email" required placeholder="direccion@gravafilt.com.ar" 
                         class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-sm focus:outline-none focus:border-blue-500 transition">
                 </div>
 
@@ -52,7 +52,7 @@
                 <div id="login-error" class="hidden bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl text-center"></div>
 
                 <button type="submit" id="btn-login" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-blue-600/20 text-sm flex justify-center items-center gap-2">
-                    Ingresar al Panel
+                    Ingresar a Plataforma
                 </button>
             </form>
             
@@ -63,85 +63,200 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- PANTALLA 2: TABLERO OPERATIVO (PROTEGIDO) -->
+    <!-- PANTALLA 2: ENTORNO CON MICROSITIOS        -->
     <!-- ========================================== -->
     <div id="pantalla-dashboard" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8 space-y-6">
         
-        <!-- Header Principal -->
-        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print-card">
-            <div>
-                <div class="flex items-center gap-3">
-                    <h1 class="text-3xl font-extrabold text-white tracking-tight print-text">GRAVAFILT S.A.</h1>
-                    <span class="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-500/30 font-semibold no-print">VNR Ex-Works</span>
+        <!-- Header & Navegación Principal -->
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl space-y-4 print-card">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-3xl font-extrabold text-white tracking-tight print-text">GRAVAFILT S.A.</h1>
+                        <span class="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-500/30 font-semibold no-print">Control Operativo</span>
+                    </div>
+                    <p class="text-slate-400 text-sm mt-1 print-text">Simulaciones de Producción, Flujo de Caja y Existencias Teóricas</p>
                 </div>
-                <p class="text-slate-400 text-sm mt-1 print-text">Monitoreo de Costos Conjuntos Diferenciados por Granulometría</p>
+                
+                <div class="flex items-center gap-3 no-print">
+                    <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-4 py-2.5 rounded-xl transition border border-slate-700 flex items-center gap-2 text-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4h10z"></path></svg>
+                        Imprimir / PDF
+                    </button>
+                    <button onclick="cerrarSesion()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 font-medium px-4 py-2.5 rounded-xl transition border border-red-500/30 flex items-center gap-2 text-sm">
+                        Salir
+                    </button>
+                </div>
             </div>
-            
-            <div class="flex items-center gap-3 no-print">
-                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-4 py-2.5 rounded-xl transition border border-slate-700 flex items-center gap-2 text-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4h10z"></path></svg>
-                    Imprimir / PDF
+
+            <!-- Selector de Micrositios (Tabs) -->
+            <div class="flex flex-wrap gap-2 pt-2 border-t border-slate-800/80 no-print">
+                <button id="tab-btn-vnr" onclick="cambiarMicrositio('vnr')" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+                    📌 1. Matriz VNR y Costos
                 </button>
-                <button onclick="cerrarSesion()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 font-medium px-4 py-2.5 rounded-xl transition border border-red-500/30 flex items-center gap-2 text-sm">
-                    Salir
+                <button id="tab-btn-simulador" onclick="cambiarMicrositio('simulador')" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white">
+                    🧪 2. Simulador Liquidez & Caja
+                </button>
+                <button id="tab-btn-stocks" onclick="cambiarMicrositio('stocks')" class="px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white">
+                    📦 3. Existencias & Stocks Teóricos
                 </button>
             </div>
         </div>
 
-        <!-- Tarjetas KPIs -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
-            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
-                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Ingreso Teórico Total</p>
-                <h3 id="kpi-ingreso" class="text-2xl font-bold text-emerald-400 mt-1">$ 0,00</h3>
-                <p class="text-xs text-slate-500 mt-1">Suma del ingreso horario por malla</p>
-            </div>
-            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
-                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Productividad Total</p>
-                <h3 id="kpi-prod" class="text-2xl font-bold text-sky-400 mt-1">0,00 tn/h</h3>
-                <p class="text-xs text-slate-500 mt-1">Suma de producción horaria real</p>
-            </div>
-            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
-                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Conjunto Total</p>
-                <h3 id="kpi-costo" class="text-2xl font-bold text-amber-400 mt-1">$ 0,00</h3>
-                <p class="text-xs text-slate-500 mt-1">Total costo operativo de planta/hs</p>
-            </div>
-            <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
-                <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Unit. Promedio</p>
-                <h3 id="kpi-promedio" class="text-2xl font-bold text-indigo-400 mt-1">$ 0,00 / tn</h3>
-                <p class="text-xs text-slate-500 mt-1">Costo medio ponderado de producción</p>
-            </div>
-        </div>
-
-        <!-- Gráficos -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
-            <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
-                <h2 class="text-base font-semibold text-white mb-4">Curva de Costo Real ($/tn) vs. Precio de Venta</h2>
-                <div class="h-64">
-                    <canvas id="chartPreciosCostos"></canvas>
+        <!-- ========================================== -->
+        <!-- MICROSITIO 1: MATRIZ VNR Y COSTOS          -->
+        <!-- ========================================== -->
+        <div id="micrositio-vnr" class="space-y-6">
+            <!-- Tarjetas KPIs -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
+                <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
+                    <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Ingreso Teórico Total</p>
+                    <h3 id="kpi-ingreso" class="text-2xl font-bold text-emerald-400 mt-1">$ 0,00</h3>
+                    <p class="text-xs text-slate-500 mt-1">Suma del ingreso horario por malla</p>
+                </div>
+                <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
+                    <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Productividad Total</p>
+                    <h3 id="kpi-prod" class="text-2xl font-bold text-sky-400 mt-1">0,00 tn/h</h3>
+                    <p class="text-xs text-slate-500 mt-1">Suma de producción horaria real</p>
+                </div>
+                <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
+                    <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Conjunto Total</p>
+                    <h3 id="kpi-costo" class="text-2xl font-bold text-amber-400 mt-1">$ 0,00</h3>
+                    <p class="text-xs text-slate-500 mt-1">Total costo operativo de planta/hs</p>
+                </div>
+                <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
+                    <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Costo Unit. Promedio</p>
+                    <h3 id="kpi-promedio" class="text-2xl font-bold text-indigo-400 mt-1">$ 0,00 / tn</h3>
+                    <p class="text-xs text-slate-500 mt-1">Costo medio ponderado de producción</p>
                 </div>
             </div>
 
-            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
-                <h2 class="text-base font-semibold text-white mb-4">Participación por Malla (% Ingreso)</h2>
-                <div class="h-64 flex justify-center items-center">
-                    <canvas id="chartParticipacion"></canvas>
+            <!-- Gráficos VNR -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
+                <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                    <h2 class="text-base font-semibold text-white mb-4">Curva de Costo Real ($/tn) vs. Precio de Venta</h2>
+                    <div class="h-64">
+                        <canvas id="chartPreciosCostos"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                    <h2 class="text-base font-semibold text-white mb-4">Participación por Malla (% Ingreso)</h2>
+                    <div class="h-64 flex justify-center items-center">
+                        <canvas id="chartParticipacion"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Matriz Operativa VNR -->
+            <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4 print-card">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-white print-text">Matriz Operativa de Valor Neto de Realización (VNR)</h2>
+                    <span class="text-xs text-slate-500 print-text">Estructura Ex-Works</span>
+                </div>
+                <div id="tabla-contenido" class="overflow-x-auto">
+                    <p class="text-slate-400 text-sm py-4">Cargando datos...</p>
                 </div>
             </div>
         </div>
 
-        <!-- Matriz Operativa -->
-        <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4 print-card">
-            <div class="flex justify-between items-center">
-                <h2 class="text-lg font-semibold text-white print-text">Matriz Operativa de Valor Neto de Realización</h2>
-                <span class="text-xs text-slate-500 print-text">Suma y promedio exacto por columna</span>
+        <!-- ========================================== -->
+        <!-- MICROSITIO 2: SIMULADOR LIQUIDEZ Y CAJA    -->
+        <!-- ========================================== -->
+        <div id="micrositio-simulador" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold text-white">Simulador de Impacto en Flujo de Caja y Liquidez</h2>
+                    <p class="text-xs text-slate-400 mt-1">Evalúe el resultado operativo modificando horas de trabajo, colocación de material inferior/descarte y plazos de cobro.</p>
+                </div>
+
+                <!-- Parámetros de Ventana de Control -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <label class="text-xs font-semibold uppercase text-slate-400 block">Horas de Operación Proyectadas</label>
+                        <input type="number" id="sim-horas" value="160" oninput="ejecutarSimulacion()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm focus:border-blue-500 focus:outline-none">
+                        <span class="text-[10px] text-slate-500">Total horas planta en el mes/período</span>
+                    </div>
+
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <label class="text-xs font-semibold uppercase text-slate-400 block">% Despacho Material Inferior / Descarte</label>
+                        <input type="range" id="sim-pct-inferior" min="0" max="100" value="50" oninput="ejecutarSimulacion()" class="w-full">
+                        <div class="flex justify-between text-xs text-slate-300">
+                            <span>Comercializado:</span>
+                            <span id="lbl-sim-inferior" class="font-bold text-amber-400">50%</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+                        <label class="text-xs font-semibold uppercase text-slate-400 block">Plazo Promedio de Cobro (Días)</label>
+                        <select id="sim-plazo" onchange="ejecutarSimulacion()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-sm focus:border-blue-500 focus:outline-none">
+                            <option value="0">Contado / Liquidez Inmediata</option>
+                            <option value="30" selected>30 Días de Plazo</option>
+                            <option value="60">60 Días de Plazo</option>
+                        </select>
+                        <span class="text-[10px] text-slate-500">Efecto diferimiento sobre caja actual</span>
+                    </div>
+                </div>
+
+                <!-- Resultados de la Simulación de Caja -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-800 pt-6">
+                    <div class="bg-emerald-950/40 border border-emerald-500/30 p-5 rounded-xl">
+                        <p class="text-xs uppercase text-emerald-400 font-semibold">Facturación Bruta Proyectada</p>
+                        <h3 id="sim-res-facturacion" class="text-2xl font-bold text-emerald-300 mt-2">$ 0,00</h3>
+                        <p class="text-[11px] text-slate-400 mt-1">Ingreso según despacho de mallas + subproductos</p>
+                    </div>
+
+                    <div class="bg-amber-950/40 border border-amber-500/30 p-5 rounded-xl">
+                        <p class="text-xs uppercase text-amber-400 font-semibold">Costo Operativo Directo Planta</p>
+                        <h3 id="sim-res-costo" class="text-2xl font-bold text-amber-300 mt-2">$ 0,00</h3>
+                        <p class="text-[11px] text-slate-400 mt-1">Costo total acumulado en las horas elegidas</p>
+                    </div>
+
+                    <div class="bg-blue-950/40 border border-blue-500/30 p-5 rounded-xl">
+                        <p class="text-xs uppercase text-blue-400 font-semibold">Margen Operativo de Caja (Cash Flow)</p>
+                        <h3 id="sim-res-caja" class="text-2xl font-bold text-blue-300 mt-2">$ 0,00</h3>
+                        <p id="sim-res-cobertura" class="text-[11px] text-slate-400 mt-1">Ratio de Cobertura: 0.0x</p>
+                    </div>
+                </div>
+
+                <!-- Tabla Detalle por Granulometría en la Simulación -->
+                <div class="space-y-2">
+                    <h3 class="text-sm font-semibold text-slate-300">Detalle de Ventas vs Producción en el Período</h3>
+                    <div id="sim-tabla-detalle" class="overflow-x-auto">
+                        <!-- Generado por JS -->
+                    </div>
+                </div>
             </div>
-            
-            <div id="tabla-contenido" class="overflow-x-auto">
-                <p class="text-slate-400 text-sm py-4">Cargando datos autenticados...</p>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MICROSITIO 3: EXISTENCIAS Y STOCKS        -->
+        <!-- ========================================== -->
+        <div id="micrositio-stocks" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-6">
+                <div class="flex flex-col md:flex-row justify-between md:items-center gap-2">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Control de Existencias Teóricas por Granulometría</h2>
+                        <p class="text-xs text-slate-400 mt-1">Diferencial acumulado entre volumen procesado y volumen despachado en cancha/silos.</p>
+                    </div>
+                    <div class="bg-slate-950 px-4 py-2 rounded-xl border border-slate-800 text-right">
+                        <span class="text-xs text-slate-400 block">Capital Inmovilizado en Stock:</span>
+                        <span id="stock-val-total" class="text-lg font-bold text-indigo-400">$ 0,00</span>
+                    </div>
+                </div>
+
+                <div id="tabla-stocks-contenido" class="overflow-x-auto">
+                    <!-- Generado por JS -->
+                </div>
             </div>
         </div>
 
     </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-xs text-slate-600 no-print">
+        GRAVAFILT S.A. &copy; 2026 | Sistema de Control de Costos Conjuntos y Simulaciones
+    </footer>
 
     <script>
         const supabaseUrl = 'https://yfakjwuyjbshgtdfwzmj.supabase.co';
@@ -150,6 +265,7 @@
 
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+        let globalData = [];
         let chartPrecios = null;
         let chartDona = null;
 
@@ -163,7 +279,7 @@
             return Number(val).toLocaleString('es-AR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
         }
 
-        // Control de Sesión al Cargar la Página
+        // Control de Sesión
         async function verificarSesion() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
@@ -181,7 +297,7 @@
         function mostrarDashboard() {
             document.getElementById('pantalla-login').classList.add('hidden');
             document.getElementById('pantalla-dashboard').classList.remove('hidden');
-            cargarDashboardVNR();
+            cargarDatosPrincipales();
         }
 
         async function iniciarSesion(event) {
@@ -200,7 +316,7 @@
             if (error) {
                 errorDiv.innerText = 'Credenciales inválidas. Compruebe usuario y contraseña.';
                 errorDiv.classList.remove('hidden');
-                btn.innerText = 'Ingresar al Panel';
+                btn.innerText = 'Ingresar a Plataforma';
                 btn.disabled = false;
             } else {
                 mostrarDashboard();
@@ -212,7 +328,43 @@
             mostrarLogin();
         }
 
-        async function cargarDashboardVNR() {
+        // Cambio entre Micrositios
+        function cambiarMicrositio(nombre) {
+            const m1 = document.getElementById('micrositio-vnr');
+            const m2 = document.getElementById('micrositio-simulador');
+            const m3 = document.getElementById('micrositio-stocks');
+
+            const btn1 = document.getElementById('tab-btn-vnr');
+            const btn2 = document.getElementById('tab-btn-simulador');
+            const btn3 = document.getElementById('tab-btn-stocks');
+
+            const estiloActivo = "px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition bg-blue-600 text-white shadow-lg shadow-blue-600/20";
+            const estiloInactivo = "px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white";
+
+            m1.classList.add('hidden');
+            m2.classList.add('hidden');
+            m3.classList.add('hidden');
+
+            btn1.className = estiloInactivo;
+            btn2.className = estiloInactivo;
+            btn3.className = estiloInactivo;
+
+            if (nombre === 'vnr') {
+                m1.classList.remove('hidden');
+                btn1.className = estiloActivo;
+            } else if (nombre === 'simulador') {
+                m2.classList.remove('hidden');
+                btn2.className = estiloActivo;
+                ejecutarSimulacion();
+            } else if (nombre === 'stocks') {
+                m3.classList.remove('hidden');
+                btn3.className = estiloActivo;
+                cargarTablaStocks();
+            }
+        }
+
+        // Carga Inicial de Datos desde Supabase
+        async function cargarDatosPrincipales() {
             const contenedor = document.getElementById('tabla-contenido');
             const { data, error } = await supabaseClient.from('costos').select('*').order('id', { ascending: true });
 
@@ -221,18 +373,17 @@
                 return;
             }
 
-            if (!data || data.length === 0) {
-                contenedor.innerHTML = `<p class="text-amber-400 text-sm">No hay registros accesibles.</p>`;
-                return;
-            }
-
-            const filasMallas = data.filter(r => {
+            globalData = data.filter(r => {
                 const nombre = (r.granulometria || '').toString().trim().toLowerCase();
                 return !nombre.startsWith('total') && !nombre.startsWith('promedio');
             });
 
-            const filasProcesar = filasMallas.length > 0 ? filasMallas : data;
+            renderizarVNR();
+        }
 
+        // Render Micrositio 1 (VNR)
+        function renderizarVNR() {
+            const contenedor = document.getElementById('tabla-contenido');
             let sumRend = 0, sumProd = 0, sumIngreso = 0, sumPart = 0, sumCostoConj = 0;
             let labels = [], preciosVta = [], costosReales = [], participaciones = [];
 
@@ -252,7 +403,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-800 text-sm">`;
 
-            filasProcesar.forEach(row => {
+            globalData.forEach(row => {
                 const rend = Number(row.rendimiento_pct) || 0;
                 const prod = Number(row.productividad_tnh) || 0;
                 const precio = Number(row.precio_venta_tn) || 0;
@@ -332,9 +483,7 @@
                             backgroundColor: '#10b981',
                             borderWidth: 3,
                             pointRadius: 5,
-                            tension: 0.2,
-                            fill: false,
-                            order: 1
+                            fill: false
                         },
                         {
                             type: 'bar',
@@ -343,8 +492,7 @@
                             backgroundColor: 'rgba(59, 130, 246, 0.7)',
                             borderColor: '#3b82f6',
                             borderWidth: 1,
-                            borderRadius: 6,
-                            order: 2
+                            borderRadius: 6
                         }
                     ]
                 },
@@ -354,13 +502,7 @@
                     plugins: { legend: { labels: { color: '#cbd5e1' } } },
                     scales: {
                         x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
-                        y: { 
-                            ticks: { 
-                                color: '#94a3b8',
-                                callback: function(v) { return '$ ' + v.toLocaleString('es-AR'); }
-                            }, 
-                            grid: { color: '#1e293b' } 
-                        }
+                        y: { ticks: { color: '#94a3b8', callback: function(v) { return '$ ' + v.toLocaleString('es-AR'); } }, grid: { color: '#1e293b' } }
                     }
                 }
             });
@@ -372,7 +514,7 @@
                     labels: labels,
                     datasets: [{
                         data: participaciones,
-                        backgroundColor: ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899']
+                        backgroundColor: ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6']
                     }]
                 },
                 options: {
@@ -383,7 +525,143 @@
             });
         }
 
-        // Ejecutar verificación de sesión al ingresar
+        // Render Micrositio 2 (Simulador de Liquidez)
+        function ejecutarSimulacion() {
+            const horas = Number(document.getElementById('sim-horas').value) || 0;
+            const pctInferior = Number(document.getElementById('sim-pct-inferior').value) || 0;
+            const plazo = Number(document.getElementById('sim-plazo').value) || 0;
+
+            document.getElementById('lbl-sim-inferior').innerText = pctInferior + '%';
+
+            let totalProducidoTn = 0;
+            let totalFacturacionBruta = 0;
+            let totalCostoPlanta = 0;
+
+            let htmlDetalle = `
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="border-b border-slate-800 text-slate-400 uppercase bg-slate-950">
+                        <th class="p-2.5">Malla</th>
+                        <th class="p-2.5 text-right">Prod. Horaria</th>
+                        <th class="p-2.5 text-right">Prod. Período (${horas}h)</th>
+                        <th class="p-2.5 text-right">% Despachado</th>
+                        <th class="p-2.5 text-right">Facturación Estimada</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">`;
+
+            globalData.forEach(row => {
+                const nombre = (row.granulometria || '').toString().toLowerCase();
+                const prodHs = Number(row.productividad_tnh) || 0;
+                const precio = Number(row.precio_venta_tn) || 0;
+                const costoHs = Number(row.costo_conjunto_asignado_hs) || 0;
+
+                const prodPeriodo = prodHs * horas;
+                totalProducidoTn += prodPeriodo;
+                totalCostoPlanta += (costoHs * horas);
+
+                // Determinar si es material inferior/descarte o producto principal
+                let pctVenta = 100;
+                if (nombre.includes('inferior') || nombre.includes('descarte') || nombre.includes('sobrante') || precio < 10000) {
+                    pctVenta = pctInferior;
+                }
+
+                const tnVendidas = prodPeriodo * (pctVenta / 100);
+                const facturacionMalla = tnVendidas * precio;
+                totalFacturacionBruta += facturacionMalla;
+
+                htmlDetalle += `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="p-2.5 font-medium text-white">${row.granulometria}</td>
+                    <td class="p-2.5 text-right text-slate-300">${fmtNum(prodHs)} tn/h</td>
+                    <td class="p-2.5 text-right text-sky-400 font-semibold">${fmtNum(prodPeriodo)} tn</td>
+                    <td class="p-2.5 text-right ${pctVenta < 100 ? 'text-amber-400' : 'text-emerald-400'}">${pctVenta}%</td>
+                    <td class="p-2.5 text-right text-emerald-300 font-bold">${fmtMoneda(facturacionMalla)}</td>
+                </tr>`;
+            });
+
+            htmlDetalle += `</tbody></table>`;
+            document.getElementById('sim-tabla-detalle').innerHTML = htmlDetalle;
+
+            // Factor de liquidez según plazo
+            let factorLiquidez = 1.0;
+            if (plazo === 30) factorLiquidez = 0.70;
+            else if (plazo === 60) factorLiquidez = 0.40;
+
+            const cajaCobradaEfectiva = totalFacturacionBruta * factorLiquidez;
+            const flujoCajaNeto = cajaCobradaEfectiva - totalCostoPlanta;
+            const ratioCobertura = totalCostoPlanta > 0 ? (cajaCobradaEfectiva / totalCostoPlanta) : 0;
+
+            document.getElementById('sim-res-facturacion').innerText = fmtMoneda(totalFacturacionBruta);
+            document.getElementById('sim-res-costo').innerText = fmtMoneda(totalCostoPlanta);
+            document.getElementById('sim-res-caja').innerText = fmtMoneda(flujoCajaNeto);
+
+            const elemRatio = document.getElementById('sim-res-cobertura');
+            elemRatio.innerText = `Caja Inmediata Est.: ${fmtMoneda(cajaCobradaEfectiva)} (Cobertura: ${fmtNum(ratioCobertura, 2)}x)`;
+            
+            if (flujoCajaNeto < 0) {
+                elemRatio.className = "text-[11px] text-red-400 font-semibold mt-1";
+            } else {
+                elemRatio.className = "text-[11px] text-emerald-400 font-semibold mt-1";
+            }
+        }
+
+        // Render Micrositio 3 (Stocks Teóricos)
+        function cargarTablaStocks() {
+            const contenedor = document.getElementById('tabla-stocks-contenido');
+            let capitalTotalStock = 0;
+
+            let html = `
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="border-b border-slate-800 text-slate-400 text-xs uppercase bg-slate-950">
+                        <th class="p-3">Granulometría / Malla</th>
+                        <th class="p-3 text-right">Prod. Horaria (tn/h)</th>
+                        <th class="p-3 text-right">Stock Teórico Est. (30d)</th>
+                        <th class="p-3 text-right">Costo VNR $/tn</th>
+                        <th class="p-3 text-right">Capital Inmovilizado</th>
+                        <th class="p-3 text-center">Estado Cancha</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800">`;
+
+            globalData.forEach(row => {
+                const prodHs = Number(row.productividad_tnh) || 0;
+                const costoReal = Number(row.costo_unitario_real_tn) || 0;
+                const nombre = (row.granulometria || '').toString().toLowerCase();
+
+                // Estimación teórica de acumulación a 1 mes
+                let diasStock = 5; // Mallas principales rotan más
+                if (nombre.includes('inferior') || nombre.includes('descarte') || nombre.includes('sobrante')) {
+                    diasStock = 20; // Material inferior se acumula más días
+                }
+
+                const stockTn = prodHs * 16 * diasStock; // 16 hs/día
+                const capitalInmov = stockTn * costoReal;
+                capitalTotalStock += capitalInmov;
+
+                let badgeEstado = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2.5 py-1 rounded-full font-semibold">Fluidez Alta</span>`;
+                if (diasStock > 10) {
+                    badgeEstado = `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-2.5 py-1 rounded-full font-semibold">Acumulación / Cancha</span>`;
+                }
+
+                html += `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="p-3 font-semibold text-white">${row.granulometria}</td>
+                    <td class="p-3 text-right text-slate-300">${fmtNum(prodHs)} tn/h</td>
+                    <td class="p-3 text-right text-sky-400 font-bold">${fmtNum(stockTn)} tn</td>
+                    <td class="p-3 text-right text-slate-300">${fmtMoneda(costoReal)}</td>
+                    <td class="p-3 text-right text-indigo-300 font-bold">${fmtMoneda(capitalInmov)}</td>
+                    <td class="p-3 text-center">${badgeEstado}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            contenedor.innerHTML = html;
+            document.getElementById('stock-val-total').innerText = fmtMoneda(capitalTotalStock);
+        }
+
+        // Iniciar
         verificarSesion();
     </script>
 </body>
