@@ -16,87 +16,78 @@
                 <h1 class="text-2xl font-bold text-white">GRAVAFILT S.A.</h1>
                 <p class="text-slate-400 text-sm">Monitoreo de Costes y Canteras - Entre Ríos / Vaca Muerta</p>
             </div>
-            <span class="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded-full font-semibold border border-green-500/30">Sistema Activo</span>
+            <span class="bg-green-500/20 text-green-400 text-xs px-3 py-1 rounded-full font-semibold border border-green-500/30">Conectado</span>
         </div>
 
-        <!-- Panel de Control Principal -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
-                <h3 class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Estado de Conexión</h3>
-                <p id="estado-conexion" class="text-lg font-bold text-yellow-400 mt-2">Conectando...</p>
+        <!-- Panel de Acciones Rápidas -->
+        <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h2 class="text-lg font-semibold text-white">Panel Operativo</h2>
+                <p class="text-slate-400 text-sm">Gestiona y visualiza los costos de extracción y fletes.</p>
             </div>
-            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
-                <h3 class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Jurisdicción Logística</h3>
-                <p class="text-lg font-bold text-white mt-2">Paraná ➔ Vaca Muerta</p>
-            </div>
-            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
-                <h3 class="text-slate-400 text-xs uppercase tracking-wider font-semibold">Área Operativa</h3>
-                <p class="text-lg font-bold text-blue-400 mt-2">Extracción y Fletes</p>
-            </div>
+            <button onclick="agregarDatoPrueba()" class="w-full md:w-auto bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2 rounded-lg text-sm transition shadow-lg">
+                + Cargar Flete de Prueba
+            </button>
         </div>
 
-        <!-- Sección de Tablas / Datos -->
+        <!-- Tabla de Registros -->
         <div class="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700">
-            <h2 class="text-lg font-semibold text-white mb-4">Registro Operativo de Tablas</h2>
-            <div id="resultado-datos" class="text-slate-400 text-sm">
-                Buscando tablas en la base de datos...
+            <h2 class="text-lg font-semibold text-white mb-4">Registro Operativo de Costos</h2>
+            <div id="tabla-contenido" class="overflow-x-auto">
+                <p class="text-slate-400 text-sm">Cargando registros...</p>
             </div>
         </div>
     </div>
 
     <script>
-        // Tus credenciales directas
         const supabaseUrl = 'https://yfakjwuyjbshgtdfwzmj.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmYWtqd3V5amJzaGd0ZGZ3em1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzg3MjYsImV4cCI6MjA1NjgxNDcyNn0.V7_h1Ff7bZ-M018J2a6q2h00bF5h_X1a2b3c4d5e6f7'; // Llave anónima pública del proyecto
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlmYWtqd3V5amJzaGd0ZGZ3em1qIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEyMzg3MjYsImV4cCI6MjA1NjgxNDcyNn0.V7_h1Ff7bZ-M018J2a6q2h00bF5h_X1a2b3c4d5e6f7';
         
-        // Inicializamos Supabase
         const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-        async function probarConexionYTablas() {
-            const estadoEl = document.getElementById('estado-conexion');
-            const resultadoEl = document.getElementById('resultado-datos');
+        async function cargarCostos() {
+            const contenedor = document.getElementById('tabla-contenido');
+            const { data, error } = await supabaseClient.from('costos').select('*').order('id', { ascending: false });
 
-            try {
-                // Hacemos una consulta general o de prueba a Supabase
-                // Aquí intentaremos leer cualquier tabla o esquema disponible
-                const { data, error } = await supabaseClient.from('costos').select('*').limit(5);
+            if (error) {
+                contenedor.innerHTML = `<p class="text-red-400 text-sm">Error al cargar datos: ${error.message}</p>`;
+                return;
+            }
 
-                if (error) {
-                    // Si la tabla 'costos' no existe todavía, probamos detectar la conexión general
-                    estadoEl.innerText = "Conectado a Supabase";
-                    estadoEl.className = "text-lg font-bold text-green-400 mt-2";
-                    resultadoEl.innerHTML = `<p class="text-amber-300">La conexión con la base de datos es exitosa. Sin embargo, la tabla específica no devolvió datos o aún no fue creada. Mensaje del sistema: ${error.message}</p>`;
-                } else {
-                    estadoEl.innerText = "En Línea (Sincronizado)";
-                    estadoEl.className = "text-lg font-bold text-green-400 mt-2";
-                    
-                    if(data && data.length > 0) {
-                        let html = '<div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="border-b border-slate-700 text-slate-300">';
-                        Object.keys(data[0]).forEach(key => {
-                            html += `<th class="p-2">${key}</th>`;
-                        });
-                        html += '</tr></thead><tbody>';
-                        data.forEach(row => {
-                            html += '<tr class="border-b border-slate-700/50 hover:bg-slate-700/20">';
-                            Object.values(row.val).forEach(val => { // Ajuste genérico de valores
-                                html += `<td class="p-2">${val}</td>`;
-                            });
-                            html += '</tr>';
-                        });
-                        html += '</tbody></table></div>';
-                        resultadoEl.innerHTML = html;
-                    } else {
-                        resultadoEl.innerHTML = '<p class="text-blue-300">La base de datos respondió correctamente, pero la tabla consultada está vacía. ¡Ya puedes cargar registros de mermas o costos!</p>';
-                    }
-                }
-            } catch (err) {
-                estadoEl.innerText = "Error de Enlace";
-                estadoEl.className = "text-lg font-bold text-red-400 mt-2";
-                resultadoEl.innerText = "No se pudo completar la consulta: " + err.message;
+            if (!data || data.length === 0) {
+                contenedor.innerHTML = `<p class="text-slate-400 text-sm">No hay registros cargados todavía. Pulsa el botón superior para agregar una prueba.</p>`;
+                return;
+            }
+
+            let html = '<table class="w-full text-left border-collapse"><thead><tr class="border-b border-slate-700 text-slate-400 text-sm">';
+            html += '<th class="p-3">Concepto</th><th class="p-3">Monto</th><th class="p-3">Jurisdicción</th>';
+            html += '</tr></thead><tbody>';
+
+            data.forEach(row => {
+                html += `<tr class="border-b border-slate-700/50 hover:bg-slate-700/20 text-sm">`;
+                html += `<td class="p-3 text-white font-medium">${row.concepto || '-'}</td>`;
+                html += `<td class="p-3 text-green-400">$ ${row.monto ? Number(row.monto).toLocaleString() : '0'}</td>`;
+                html += `<td class="p-3 text-slate-300">${row.jurisdiccion || '-'}</td>`;
+                html += `</tr>`;
+            });
+
+            html += '</tbody></table>';
+            contenedor.innerHTML = html;
+        }
+
+        async function agregarDatoPrueba() {
+            const { error } = await supabaseClient.from('costos').insert([
+                { concepto: 'Flete Paraná ➔ Vaca Muerta (Test)', monto: 185000, jurisdiccion: 'Entre Ríos / Neuquén' }
+            ]);
+
+            if (error) {
+                alert('Error al guardar: ' + error.message);
+            } else {
+                cargarCostos(); // Recarga la tabla sola
             }
         }
 
-        probarConexionYTablas();
+        cargarCostos();
     </script>
 </body>
 </html>
