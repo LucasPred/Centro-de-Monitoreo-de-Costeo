@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GRAVAFILT S.A. | Centro de Control VNR & Costos</title>
+    <title>GRAVAFILT S.A. | Acceso Restringido - Centro VNR</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Chart.js para Gráficos Interactivos -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -23,9 +23,49 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-4 md:p-8 font-sans">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans flex flex-col justify-center">
 
-    <div class="max-w-7xl mx-auto space-y-6">
+    <!-- ========================================== -->
+    <!-- PANTALLA 1: FORMULARIO DE ACCESO (LOGIN)   -->
+    <!-- ========================================== -->
+    <div id="pantalla-login" class="max-w-md w-full mx-auto p-6">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <h1 class="text-2xl font-extrabold text-white tracking-tight">GRAVAFILT S.A.</h1>
+                <p class="text-xs text-blue-400 font-semibold uppercase tracking-widest">Acceso Restringido a Directivos</p>
+                <p class="text-slate-400 text-xs mt-1">Ingrese sus credenciales corporativas para acceder a la Matriz VNR & Costos de Planta.</p>
+            </div>
+
+            <form id="login-form" onsubmit="iniciarSesion(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Correo Electrónico</label>
+                    <input type="email" id="login-email" required placeholder="usuario@gravafilt.com.ar" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-sm focus:outline-none focus:border-blue-500 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 uppercase tracking-wider mb-1">Contraseña</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-sm focus:outline-none focus:border-blue-500 transition">
+                </div>
+
+                <div id="login-error" class="hidden bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-3 rounded-xl text-center"></div>
+
+                <button type="submit" id="btn-login" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-blue-600/20 text-sm flex justify-center items-center gap-2">
+                    Ingresar al Panel
+                </button>
+            </form>
+            
+            <div class="text-center border-t border-slate-800 pt-4">
+                <p class="text-[10px] text-slate-500">Sistema protegido con cifrado SSL & Supabase Auth</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- PANTALLA 2: TABLERO OPERATIVO (PROTEGIDO) -->
+    <!-- ========================================== -->
+    <div id="pantalla-dashboard" class="hidden w-full max-w-7xl mx-auto p-4 md:p-8 space-y-6">
         
         <!-- Header Principal -->
         <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print-card">
@@ -34,18 +74,21 @@
                     <h1 class="text-3xl font-extrabold text-white tracking-tight print-text">GRAVAFILT S.A.</h1>
                     <span class="bg-blue-500/20 text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-500/30 font-semibold no-print">VNR Ex-Works</span>
                 </div>
-                <p class="text-slate-400 text-sm mt-1 print-text">Monitoreo de Costos Conjuntos Diferenciados por Granulometría de Arena Industrial</p>
+                <p class="text-slate-400 text-sm mt-1 print-text">Monitoreo de Costos Conjuntos Diferenciados por Granulometría</p>
             </div>
             
             <div class="flex items-center gap-3 no-print">
-                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-2.5 rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center gap-2 text-sm">
+                <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium px-4 py-2.5 rounded-xl transition border border-slate-700 flex items-center gap-2 text-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H7a2 2 0 00-2 2v4h10z"></path></svg>
-                    Exportar PDF / Imprimir
+                    Imprimir / PDF
+                </button>
+                <button onclick="cerrarSesion()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 font-medium px-4 py-2.5 rounded-xl transition border border-red-500/30 flex items-center gap-2 text-sm">
+                    Salir
                 </button>
             </div>
         </div>
 
-        <!-- Tarjetas de KPIs (Sincronizadas con los Totales) -->
+        <!-- Tarjetas KPIs -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
             <div class="bg-slate-900/90 border border-slate-800 p-5 rounded-xl">
                 <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Ingreso Teórico Total</p>
@@ -69,7 +112,7 @@
             </div>
         </div>
 
-        <!-- Gráficos Interactivos -->
+        <!-- Gráficos -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 no-print">
             <div class="lg:col-span-2 bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
                 <h2 class="text-base font-semibold text-white mb-4">Curva de Costo Real ($/tn) vs. Precio de Venta</h2>
@@ -86,7 +129,7 @@
             </div>
         </div>
 
-        <!-- Matriz VNR Completa con Fila de Totales -->
+        <!-- Matriz Operativa -->
         <div class="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl space-y-4 print-card">
             <div class="flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-white print-text">Matriz Operativa de Valor Neto de Realización</h2>
@@ -94,7 +137,7 @@
             </div>
             
             <div id="tabla-contenido" class="overflow-x-auto">
-                <p class="text-slate-400 text-sm py-4">Cargando datos desde Supabase...</p>
+                <p class="text-slate-400 text-sm py-4">Cargando datos autenticados...</p>
             </div>
         </div>
 
@@ -120,21 +163,69 @@
             return Number(val).toLocaleString('es-AR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
         }
 
+        // Control de Sesión al Cargar la Página
+        async function verificarSesion() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                mostrarDashboard();
+            } else {
+                mostrarLogin();
+            }
+        }
+
+        function mostrarLogin() {
+            document.getElementById('pantalla-login').classList.remove('hidden');
+            document.getElementById('pantalla-dashboard').classList.add('hidden');
+        }
+
+        function mostrarDashboard() {
+            document.getElementById('pantalla-login').classList.add('hidden');
+            document.getElementById('pantalla-dashboard').classList.remove('hidden');
+            cargarDashboardVNR();
+        }
+
+        async function iniciarSesion(event) {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+            const btn = document.getElementById('btn-login');
+
+            errorDiv.classList.add('hidden');
+            btn.innerText = 'Verificando...';
+            btn.disabled = true;
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                errorDiv.innerText = 'Credenciales inválidas. Compruebe usuario y contraseña.';
+                errorDiv.classList.remove('hidden');
+                btn.innerText = 'Ingresar al Panel';
+                btn.disabled = false;
+            } else {
+                mostrarDashboard();
+            }
+        }
+
+        async function cerrarSesion() {
+            await supabaseClient.auth.signOut();
+            mostrarLogin();
+        }
+
         async function cargarDashboardVNR() {
             const contenedor = document.getElementById('tabla-contenido');
             const { data, error } = await supabaseClient.from('costos').select('*').order('id', { ascending: true });
 
             if (error) {
-                contenedor.innerHTML = `<p class="text-red-400 text-sm">Error al conectar con la base de datos: ${error.message}</p>`;
+                contenedor.innerHTML = `<p class="text-red-400 text-sm">Error al cargar datos: ${error.message}</p>`;
                 return;
             }
 
             if (!data || data.length === 0) {
-                contenedor.innerHTML = `<p class="text-amber-400 text-sm">No hay registros guardados en la tabla "costos".</p>`;
+                contenedor.innerHTML = `<p class="text-amber-400 text-sm">No hay registros accesibles.</p>`;
                 return;
             }
 
-            // Excluir filas que contengan 'TOTAL' o 'PROMEDIO' en el nombre para evitar duplicar sumas
             const filasMallas = data.filter(r => {
                 const nombre = (r.granulometria || '').toString().trim().toLowerCase();
                 return !nombre.startsWith('total') && !nombre.startsWith('promedio');
@@ -142,16 +233,8 @@
 
             const filasProcesar = filasMallas.length > 0 ? filasMallas : data;
 
-            let sumRend = 0;
-            let sumProd = 0;
-            let sumIngreso = 0;
-            let sumPart = 0;
-            let sumCostoConj = 0;
-
-            let labels = [];
-            let preciosVta = [];
-            let costosReales = [];
-            let participaciones = [];
+            let sumRend = 0, sumProd = 0, sumIngreso = 0, sumPart = 0, sumCostoConj = 0;
+            let labels = [], preciosVta = [], costosReales = [], participaciones = [];
 
             let html = `
             <table class="w-full text-left border-collapse min-w-[950px]">
@@ -205,7 +288,6 @@
             const costoPromPonderado = sumProd > 0 ? (sumCostoConj / sumProd) : 0;
             const precioPromPonderado = sumProd > 0 ? (sumIngreso / sumProd) : 0;
 
-            // Fila de TOTALES al pie de la tabla
             html += `
             </tbody>
             <tfoot>
@@ -224,7 +306,6 @@
 
             contenedor.innerHTML = html;
 
-            // Asignación directa de Tarjetas KPIs
             document.getElementById('kpi-ingreso').innerText = fmtMoneda(sumIngreso);
             document.getElementById('kpi-prod').innerText = fmtNum(sumProd) + ' tn/h';
             document.getElementById('kpi-costo').innerText = fmtMoneda(sumCostoConj);
@@ -302,7 +383,8 @@
             });
         }
 
-        cargarDashboardVNR();
+        // Ejecutar verificación de sesión al ingresar
+        verificarSesion();
     </script>
 </body>
 </html>
